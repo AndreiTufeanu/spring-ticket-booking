@@ -7,5 +7,10 @@ spring:
     url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}
     username: ${MYSQL_USERNAME}
     password: ${mysql_root_password}
+  jpa:
+    properties:
+      hibernate:
+        type:
+          preferred_uuid_jdbc_type: CHAR
 server:
   port: 8080
