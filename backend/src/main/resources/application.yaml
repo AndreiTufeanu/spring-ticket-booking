@@ -1,3 +1,11 @@
 spring:
   application:
     name: backend
+  config:
+    import: "optional:configtree:/run/secrets/"
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DB}
+    username: ${MYSQL_USERNAME}
+    password: ${mysql_root_password}
+server:
+  port: 8080
