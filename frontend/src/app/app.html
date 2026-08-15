@@ -1,0 +1,5 @@
+@if (notificationService.notification(); as n) {
+  <div class="toast" [class]="n.type">{{ n.message }}</div>
+}
+
+<router-outlet />

@@ -1,0 +1,62 @@
+<div class="user-container">
+    <header class="user-header">
+        <h1>User Dashboard ({{ currentUsername }})</h1>
+        <button class="btn-back" (click)="logout()">
+            Logout
+        </button>
+    </header>
+
+    @if (loading()) {
+    <div class="loading">Loading...</div>
+    }
+
+    <!-- Available Events -->
+    <section class="events-section">
+        <h3>Upcoming Events</h3>
+        @if (events().length === 0 && !loading()) {
+        <p>No upcoming events</p>
+        }
+
+        <div class="events-grid">
+            @for (event of events(); track event.id) {
+            <div class="event-card">
+                <h4>{{ event.title }}</h4>
+                <p>{{ event.eventDate | date:'medium' }}</p>
+                <p class="seats">Available: {{ event.availableSeats }} seats</p>
+
+                <div class="book-form">
+                    <label>Seat Number:</label>
+                    <input [ngModel]="getSelectedSeat(event.id)" (ngModelChange)="setSelectedSeat(event.id, $event)"
+                        type="number" min="1" placeholder="Seat #">
+                    <button (click)="bookSeat(event.id)" [disabled]="getSelectedSeat(event.id) < 1" class="btn-book">
+                        Book Seat #{{ getSelectedSeat(event.id) }}
+                    </button>
+                </div>
+            </div>
+            }
+        </div>
+    </section>
+
+    <!-- My Bookings -->
+    <section class="bookings-section">
+        <h3>My Bookings ({{ bookings().length }})</h3>
+
+        @if (bookings().length === 0) {
+        <p>No bookings yet. Book one above!</p>
+        }
+
+        <div class="bookings-grid">
+            @for (booking of bookings(); track booking.id) {
+            <div class="booking-card">
+                <div class="booking-info">
+                    <h4>{{ booking.eventTitle }}</h4>
+                    <p>Seat: {{ booking.seatNumber }}</p>
+                    <p>Date: {{ booking.eventDate | date:'medium' }}</p>
+                </div>
+                <button (click)="cancelBooking(booking.id)" class="btn-cancel">Cancel</button>
+            </div>
+            }
+
+        </div>
+    </section>
+</div>
