@@ -1,0 +1,57 @@
+services:
+  mysql-db:
+    image: mysql:26.7.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/mysql_root_password
+      - MYSQL_DATABASE=ticketdb
+    secrets:
+      - mysql_root_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root --password=$$(cat /run/secrets/mysql_root_password)"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - app-network
+
+  ticket-booking:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "8080:8080"
+    environment:
+      - AllowedOrigin=http://localhost:4200
+      - MYSQL_HOST=mysql-db
+      - MYSQL_USERNAME=root
+      - MYSQL_PORT=3306
+      - MYSQL_DB=ticketdb
+    secrets:
+      - mysql_root_password
+    networks:
+      - app-network
+    depends_on:
+      mysql-db:
+        condition: service_healthy
+
+volumes:
+  mysql-data:
+
+networks:
+  app-network:
+    driver: bridge
+
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
