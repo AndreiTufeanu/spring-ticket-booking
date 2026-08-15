@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS users (
     id CHAR(36) PRIMARY KEY,
     username VARCHAR(50) NOT NULL UNIQUE,
     password_hash VARCHAR(500) NOT NULL,
-    role INT NOT NULL DEFAULT 0,
+    role VARCHAR(20) NOT NULL DEFAULT 'ROLE_USER',
     refresh_token VARCHAR(500),
     refresh_token_expiry DATETIME
 );
