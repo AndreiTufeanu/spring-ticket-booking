@@ -52,4 +52,12 @@ public class JwtService {
         return jwtProperties.refreshTokenExpiryDays();
     }
 
+    public Jws<Claims> parseToken(String token) {
+        return Jwts.parser()
+                .verifyWith(signingKey)
+                .requireIssuer(jwtProperties.issuer())
+                .build()
+                .parseSignedClaims(token);
+    }
+
 }
