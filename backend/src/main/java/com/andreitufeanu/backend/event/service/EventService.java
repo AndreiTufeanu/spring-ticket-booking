@@ -7,6 +7,7 @@ import com.andreitufeanu.backend.event.entity.Event;
 import com.andreitufeanu.backend.event.mapper.EventMapper;
 import com.andreitufeanu.backend.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,6 +17,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 @Transactional(readOnly = true)
 public class EventService {
 
@@ -39,11 +41,10 @@ public class EventService {
 
     @Transactional
     public EventResponseDto createEvent(CreateEventDto dto) {
-        return eventMapper.toResponse(
-                eventRepository.save(
-                        eventMapper.toEntityWithAvailableSeats(dto)
-                )
-        );
+        Event created = eventRepository.save(eventMapper.toEntityWithAvailableSeats(dto));
+        log.info("Event {} created successfully", created.getId());
+
+        return eventMapper.toResponse(created);
     }
 
     @Transactional
@@ -53,12 +54,15 @@ public class EventService {
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
 
         eventMapper.updateEntity(dto, event);
+        Event updated = eventRepository.save(event);
+        log.info("Event {} updated successfully", updated.getId());
 
-        return eventMapper.toResponse(eventRepository.save(event));
+        return eventMapper.toResponse(updated);
     }
 
     @Transactional
     public void deleteEventById(UUID id) {
         eventRepository.deleteById(id);
+        log.info("Event {} deleted successfully", id);
     }
 }

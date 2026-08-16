@@ -9,6 +9,6 @@ import java.util.UUID;
 
 public interface EventRepository extends JpaRepository<Event, UUID> {
 
-    public List<Event> findByEventDateGreaterThanOrderByEventDateAsc(Instant currentDate);
+    List<Event> findByEventDateGreaterThanOrderByEventDateAsc(Instant currentDate);
 
 }
