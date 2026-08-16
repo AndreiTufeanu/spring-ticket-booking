@@ -12,5 +12,11 @@ spring:
       hibernate:
         type:
           preferred_uuid_jdbc_type: CHAR
+jwt:
+  secret-key: ${jwt_secret_key}
+  issuer: ticketflow
+  audience: ticketflow-client
+  expiration-minutes: 15
+  refresh-token-expiry-days: 7
 server:
   port: 8080
