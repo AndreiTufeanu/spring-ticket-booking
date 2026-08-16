@@ -33,11 +33,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (header != null && header.startsWith("Bearer ")) {
             try {
                 Claims claims = jwtService.parseToken(header.substring(7)).getPayload();
-                String username = claims.get("unique_name", String.class);
+                String userId = claims.getSubject();
                 String role = claims.get("role", String.class);
 
                 var authentication = new UsernamePasswordAuthenticationToken(
-                        username, null, List.of(new SimpleGrantedAuthority(role)));
+                        userId, null, List.of(new SimpleGrantedAuthority(role)));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (JwtException ex) {
