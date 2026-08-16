@@ -12,7 +12,8 @@ import java.util.UUID;
 @Getter
 @Setter
 @Entity
-@Table(name = "bookings")
+@Table(name = "bookings", uniqueConstraints =
+    @UniqueConstraint(name = "uq_bookings_event_seat", columnNames = {"event_id", "seat_number"}))
 public class Booking {
 
     @Id
