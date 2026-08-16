@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS bookings (
     id CHAR(36) PRIMARY KEY,
     user_id CHAR(36) NOT NULL,
     event_id CHAR(36) NOT NULL,
-    seat_number INT NOT NULL,
+    seat_number INT NOT NULL CHECK (seat_number BETWEEN 1 AND 1000000),
     UNIQUE (event_id, seat_number),
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (event_id) REFERENCES events(id)
