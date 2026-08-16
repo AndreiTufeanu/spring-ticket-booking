@@ -25,3 +25,4 @@ replay_pid*
 
 # Docker secrets
 /secrets/mysql_root_password.txt
+/secrets/jwt_secret_key.txt
