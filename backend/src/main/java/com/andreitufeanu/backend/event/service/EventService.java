@@ -8,6 +8,7 @@ import com.andreitufeanu.backend.event.mapper.EventMapper;
 import com.andreitufeanu.backend.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class EventService {
 
     private final EventRepository eventRepository;
@@ -35,6 +37,7 @@ public class EventService {
                 .orElseThrow(() -> new RuntimeException("Event not found: " + id));
     }
 
+    @Transactional
     public EventResponseDto createEvent(CreateEventDto dto) {
         return eventMapper.toResponse(
                 eventRepository.save(
@@ -43,6 +46,7 @@ public class EventService {
         );
     }
 
+    @Transactional
     public EventResponseDto updateEvent(UUID id, UpdateEventDto dto) {
         Event event = eventRepository
                 .findById(id)
@@ -53,6 +57,7 @@ public class EventService {
         return eventMapper.toResponse(eventRepository.save(event));
     }
 
+    @Transactional
     public void deleteEventById(UUID id) {
         eventRepository.deleteById(id);
     }
