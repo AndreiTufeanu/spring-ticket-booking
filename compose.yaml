@@ -39,6 +39,7 @@ services:
       - MYSQL_DB=ticketdb
     secrets:
       - mysql_root_password
+      - jwt_secret_key
     networks:
       - app-network
     depends_on:
@@ -55,3 +56,5 @@ networks:
 secrets:
   mysql_root_password:
     file: ./secrets/mysql_root_password.txt
+  jwt_secret_key:
+    file: ./secrets/jwt_secret_key.txt
