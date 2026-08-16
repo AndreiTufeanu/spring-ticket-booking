@@ -13,6 +13,7 @@ import com.andreitufeanu.backend.user.mapper.UserMapper;
 import com.andreitufeanu.backend.user.repository.UserRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,7 @@ import java.time.temporal.ChronoUnit;
 @Service
 @RequiredArgsConstructor
 @Transactional
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -40,6 +42,7 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(dto.password()));
 
         User createdUser = userRepository.save(user);
+        log.info("User {} registered successfully", createdUser.getUsername());
 
         return userMapper.toDto(createdUser);
     }
@@ -66,11 +69,13 @@ public class UserService {
     }
 
     public void revoke(String refreshToken) {
-        userRepository.findByRefreshToken(refreshToken).ifPresent(user -> {
+        userRepository.findByRefreshToken(refreshToken).ifPresentOrElse(user -> {
             user.setRefreshToken(null);
             user.setRefreshTokenExpiry(null);
             userRepository.save(user);
-        });
+            log.info("Refresh token revoked for user {}", user.getId());
+        }, () -> log.warn("Revoke failed, token not found"));
+
     }
 
     private AuthResponseDto issueTokens(User user) {
@@ -82,6 +87,7 @@ public class UserService {
         user.setRefreshTokenExpiry(expiry);
         userRepository.save(user);
 
+        log.info("Tokens issued for user {}", user.getUsername());
         return new AuthResponseDto(accessToken, refreshToken, jwtService.getRefreshTokenExpiryDays());
     }
 }
