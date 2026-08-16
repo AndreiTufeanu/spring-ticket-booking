@@ -55,6 +55,24 @@ public class UserService {
         return issueTokens(user);
     }
 
+    public AuthResponseDto refresh(String refreshToken) {
+        User user = userRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new UnauthorizedException("Invalid refresh token."));
+
+        if (user.getRefreshTokenExpiry() == null || user.getRefreshTokenExpiry().isBefore(Instant.now()))
+            throw new UnauthorizedException("Refresh token has expired. Please log in again.");
+
+        return issueTokens(user);
+    }
+
+    public void revoke(String refreshToken) {
+        userRepository.findByRefreshToken(refreshToken).ifPresent(user -> {
+            user.setRefreshToken(null);
+            user.setRefreshTokenExpiry(null);
+            userRepository.save(user);
+        });
+    }
+
     private AuthResponseDto issueTokens(User user) {
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken();
@@ -66,5 +84,4 @@ public class UserService {
 
         return new AuthResponseDto(accessToken, refreshToken, jwtService.getRefreshTokenExpiryDays());
     }
-
 }
