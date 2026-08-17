@@ -1,10 +1,13 @@
 package com.andreitufeanu.backend.event.entity;
 
+import com.andreitufeanu.backend.booking.entity.Booking;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import java.time.Instant;
@@ -47,4 +50,7 @@ public class Event {
     @Max(value = 1_000_000, message = "Available seats can't exceed {value}")
     @Column(name = "available_seats", nullable = false)
     private int availableSeats;
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Booking> bookings = new ArrayList<>();
 }
