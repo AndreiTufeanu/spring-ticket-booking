@@ -7,6 +7,9 @@ CREATE TABLE IF NOT EXISTS users (
     refresh_token_expiry DATETIME
 );
 
+INSERT IGNORE INTO users (id, username, password_hash, role)
+VALUES (UUID(), 'admin', '$2a$10$qWxdzvXM8Imqw.QOWg4fTu6js4y5j3arroJEDwnIPJ.GGDsDuAcmq', 'ROLE_ADMIN');
+
 CREATE TABLE IF NOT EXISTS events (
     id CHAR(36) PRIMARY KEY,
     title VARCHAR(50) NOT NULL,
