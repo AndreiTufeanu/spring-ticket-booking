@@ -10,12 +10,14 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.Duration;
 
@@ -27,6 +29,7 @@ public class UserController {
     private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
     private final UserService userService;
+    private final ObjectMapper objectMapper;
 
     @PostMapping("/register")
     public ResponseEntity<UserResponseDto> registerUser(@RequestBody RegisterDto user) {
@@ -39,7 +42,10 @@ public class UserController {
                                                      HttpServletResponse response) {
         AuthResponseDto result = userService.loginUser(loginDto);
         setRefreshTokenCookie(request, response, result.refreshToken(), result.refreshTokenExpiryDays());
-        return ResponseEntity.ok(result.accessToken());
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(objectMapper.writeValueAsString(result.accessToken()));
     }
 
     @PostMapping("/refresh")
@@ -50,7 +56,10 @@ public class UserController {
 
         AuthResponseDto result = userService.refresh(refreshToken);
         setRefreshTokenCookie(request, response, result.refreshToken(), result.refreshTokenExpiryDays());
-        return ResponseEntity.ok(result.accessToken());
+        return ResponseEntity
+                .ok()
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(objectMapper.writeValueAsString(result.accessToken()));
     }
 
     @PostMapping("/revoke")
