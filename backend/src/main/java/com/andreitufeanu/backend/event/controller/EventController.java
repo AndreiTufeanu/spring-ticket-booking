@@ -6,9 +6,8 @@ import com.andreitufeanu.backend.event.dto.UpdateEventDto;
 import com.andreitufeanu.backend.event.service.EventService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.sql.Update;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -33,6 +32,7 @@ public class EventController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> createEvent(@RequestBody @Valid CreateEventDto createEventDto) {
         var createdEvent = eventService.createEvent(createEventDto);
 
@@ -42,11 +42,13 @@ public class EventController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventResponseDto> updateEvent(@PathVariable UUID id, @RequestBody @Valid UpdateEventDto updateEventDto) {
         return ResponseEntity.ok().body(eventService.updateEvent(id, updateEventDto));
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteEvent(@PathVariable UUID id) {
         eventService.deleteEventById(id);
         return ResponseEntity.noContent().build();
