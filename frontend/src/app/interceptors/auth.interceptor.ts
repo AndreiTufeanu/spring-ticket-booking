@@ -3,6 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, switchMap, throwError, BehaviorSubject, filter, take } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { API_PATHS } from '../constants/api-paths';
 
 let isRefreshing = false;
 const refreshDone$ = new BehaviorSubject<boolean>(false);
@@ -15,7 +16,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
-      const isAuthEndpoint = authReq.url.includes('/users/refresh') || authReq.url.includes('/users/login');
+      const isAuthEndpoint = authReq.url.includes(`/${API_PATHS.REFRESH}`) || authReq.url.includes(`/${API_PATHS.LOGIN}`);
       if (error.status !== 401 || isAuthEndpoint) return throwError(() => error);
 
       if (isRefreshing) {

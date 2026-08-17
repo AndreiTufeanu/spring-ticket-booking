@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { extractErrorMessage } from '../../utils/api-error.util';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ROLES } from '../../constants/role';
 
 @Component({
   selector: 'app-login',
@@ -44,7 +45,7 @@ export class Login {
         next: (accessToken: string) => {
           this.authService.setToken(accessToken);
           const role = this.authService.getRole();
-          this.router.navigate([role === 'admin' ? '/admin' : '/user']);
+          this.router.navigate([role === ROLES.ADMIN ? '/admin' : '/user']);
         },
         error: (err: HttpErrorResponse) => this.error.set(extractErrorMessage(err))
       });

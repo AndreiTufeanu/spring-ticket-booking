@@ -2,13 +2,14 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { API_PATHS } from '../constants/api-paths';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly TOKEN_KEY = 'jwt_token';
   private readonly USERNAME_KEY = 'username';
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiGatewayUrl}/users`;;
+  private readonly apiUrl = environment.apiGatewayUrl;
 
   setToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
@@ -48,7 +49,7 @@ export class AuthService {
 
   refresh(): Observable<string> {
     return this.http.post<string>(
-      `${this.apiUrl}/refresh`,
+      `${this.apiUrl}/${API_PATHS.REFRESH}`,
       {},
       { withCredentials: true }
     ).pipe(tap((accessToken) => this.setToken(accessToken)));
@@ -56,7 +57,7 @@ export class AuthService {
 
   revoke(): Observable<void> {
     return this.http.post<void>(
-      `${this.apiUrl}/revoke`,
+      `${this.apiUrl}/${API_PATHS.REVOKE}`,
       {},
       { withCredentials: true }
     );
