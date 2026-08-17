@@ -10,9 +10,9 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
     private readonly apiUrl = environment.apiGatewayUrl;
-    private readonly EVENTS = 'Events';
-    private readonly BOOKINGS = 'Bookings';
-    private readonly USERS = 'Users';
+    private readonly EVENTS = 'events';
+    private readonly BOOKINGS = 'bookings';
+    private readonly USERS = 'users';
     private readonly http = inject(HttpClient);
 
     // Auth

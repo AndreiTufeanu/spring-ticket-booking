@@ -8,7 +8,7 @@ export class AuthService {
   private readonly TOKEN_KEY = 'jwt_token';
   private readonly USERNAME_KEY = 'username';
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiGatewayUrl}/Users`;;
+  private readonly apiUrl = `${environment.apiGatewayUrl}/users`;;
 
   setToken(token: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);

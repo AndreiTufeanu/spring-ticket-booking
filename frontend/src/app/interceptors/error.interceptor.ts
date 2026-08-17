@@ -4,7 +4,7 @@ import { catchError, throwError } from 'rxjs';
 import { NotificationService } from '../services/notification.service';
 import { extractErrorMessage } from '../utils/api-error.util';
 
-const SILENT_URLS = ['/Users/login', '/Users/register', '/Users/refresh'];
+const SILENT_URLS = ['/users/login', '/users/register', '/users/refresh'];
 
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const notificationService = inject(NotificationService);
