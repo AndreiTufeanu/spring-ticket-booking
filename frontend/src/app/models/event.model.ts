@@ -1,3 +1,5 @@
+import { CategoryDto } from './category.model';
+
 export interface EventDto {
     id: string;
     title: string;
@@ -6,6 +8,7 @@ export interface EventDto {
     eventDate: string;
     totalSeats: number;
     availableSeats: number;
+    categories: CategoryDto[];
 }
 
 export interface CreateEventDto {
@@ -14,6 +17,7 @@ export interface CreateEventDto {
     location: string;
     eventDate: string;
     totalSeats: number;
+    categoryIds: string[];
 }
 
 export interface UpdateEventDto {
@@ -21,4 +25,5 @@ export interface UpdateEventDto {
     description: string;
     location: string;
     eventDate: string;
+    categoryIds: string[];
 }

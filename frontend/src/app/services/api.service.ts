@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateEventDto, UpdateEventDto, EventDto } from '../models/event.model';
 import { BookingDto, CreateBookingDto } from '../models/booking.model';
+import { CategoryDto, CreateCategoryDto } from '../models/category.model';
 import { environment } from '../../environments/environment';
 import { API_PATHS } from '../constants/api-paths';
 
@@ -48,6 +49,19 @@ export class ApiService {
 
     deleteEvent(id: string): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/${API_PATHS.EVENTS}/${id}`);
+    }
+
+    // Categories
+    getCategories(): Observable<CategoryDto[]> {
+        return this.http.get<CategoryDto[]>(`${this.apiUrl}/${API_PATHS.CATEGORIES}`);
+    }
+
+    createCategory(category: CreateCategoryDto): Observable<CategoryDto> {
+        return this.http.post<CategoryDto>(`${this.apiUrl}/${API_PATHS.CATEGORIES}`, category);
+    }
+
+    deleteCategory(id: string): Observable<void> {
+        return this.http.delete<void>(`${this.apiUrl}/${API_PATHS.CATEGORIES}/${id}`);
     }
 
     // Bookings
