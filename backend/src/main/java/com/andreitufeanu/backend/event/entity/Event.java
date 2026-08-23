@@ -53,4 +53,12 @@ public class Event {
 
     @OneToMany(mappedBy = "event", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Booking> bookings = new ArrayList<>();
+
+    @ManyToMany()
+    @JoinTable(
+            name = "event_categories",
+            joinColumns = @JoinColumn(name = "event_id"),
+            inverseJoinColumns = @JoinColumn(name = "category_id")
+    )
+    private List<Category> categories = new ArrayList<>();
 }
