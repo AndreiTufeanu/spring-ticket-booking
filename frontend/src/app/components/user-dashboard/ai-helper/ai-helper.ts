@@ -1,7 +1,7 @@
 import { Component, signal, ElementRef, viewChild, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ChatMessage } from '../../models/chat.model';
+import { ChatMessage } from '../../../models/chat.model';
 
 @Component({
   selector: 'app-ai-helper',

@@ -1,9 +1,9 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ApiService } from '../../services/api.service';
-import { EventDto } from '../../models/event.model';
-import { CreateBookingDto, BookingDto } from '../../models/booking.model';
+import { ApiService } from '../../../services/api.service';
+import { EventDto } from '../../../models/event.model';
+import { CreateBookingDto, BookingDto } from '../../../models/booking.model';
 
 @Component({
   selector: 'app-user-bookings',

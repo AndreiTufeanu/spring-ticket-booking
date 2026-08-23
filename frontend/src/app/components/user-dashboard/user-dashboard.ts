@@ -1,8 +1,8 @@
 import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { UserBookings } from '../user-bookings/user-bookings';
-import { AiHelper } from '../ai-helper/ai-helper';
+import { UserBookings } from './user-bookings/user-bookings';
+import { AiHelper } from './ai-helper/ai-helper';
 
 type UserTab = 'bookings' | 'ai-helper';
 

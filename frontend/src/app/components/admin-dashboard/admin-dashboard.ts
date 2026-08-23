@@ -7,13 +7,13 @@ import { CategoriesManagement } from './categories-management/categories-managem
 type AdminTab = 'events' | 'categories';
 
 @Component({
-  selector: 'app-admin-events',
+  selector: 'app-admin-dashboard',
   standalone: true,
   imports: [EventsManagement, CategoriesManagement],
-  templateUrl: './admin-events.html',
-  styleUrl: './admin-events.css',
+  templateUrl: './admin-dashboard.html',
+  styleUrl: './admin-dashboard.css',
 })
-export class AdminEvents {
+export class AdminDashboard {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
