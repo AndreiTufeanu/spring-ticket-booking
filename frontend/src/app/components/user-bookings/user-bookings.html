@@ -17,6 +17,15 @@
                 <p>{{ event.eventDate | date:'medium' }}</p>
                 <p class="seats">Available: {{ event.availableSeats }} seats</p>
 
+                <div class="event-categories">
+                    @for (category of event.categories; track category.id) {
+                    <span class="category-tag">{{ category.name }}</span>
+                    }
+                    @if (event.categories.length === 0) {
+                    <span class="no-category">—</span>
+                    }
+                </div>
+
                 <div class="book-form">
                     <label>Seat Number:</label>
                     <input [ngModel]="getSelectedSeat(event.id)" (ngModelChange)="setSelectedSeat(event.id, $event)"
