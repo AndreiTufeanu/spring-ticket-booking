@@ -8,9 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EventMapperTest {
 
@@ -38,6 +39,7 @@ class EventMapperTest {
         assertThat(dto.eventDate()).isEqualTo(now);
         assertThat(dto.totalSeats()).isEqualTo(100);
         assertThat(dto.availableSeats()).isEqualTo(50);
+        assertThat(dto.categories()).isEmpty();
     }
 
     @Test
@@ -52,7 +54,7 @@ class EventMapperTest {
         event.setAvailableSeats(40);
 
         Instant newDate = Instant.now();
-        UpdateEventDto dto = new UpdateEventDto("New Title", "New Desc", "New Loc", newDate);
+        UpdateEventDto dto = new UpdateEventDto("New Title", "New Desc", "New Loc", newDate, null);
 
         mapper.updateEntity(dto, event);
 
@@ -67,7 +69,7 @@ class EventMapperTest {
     @Test
     void toEntity_ShouldMapCreateDtoToEntity_IgnoringIdAndAvailableSeats() {
         Instant now = Instant.now();
-        CreateEventDto dto = new CreateEventDto("New Event", "Desc", "Loc", now, 150);
+        CreateEventDto dto = new CreateEventDto("New Event", "Desc", "Loc", now, 150, List.of());
         Event event = mapper.toEntity(dto);
 
         assertThat(event.getId()).isNull();
@@ -82,11 +84,10 @@ class EventMapperTest {
     @Test
     void toEntityWithAvailableSeats_ShouldSetAvailableSeatsEqualToTotalSeats() {
         Instant now = Instant.now();
-        CreateEventDto dto = new CreateEventDto("Event", "Desc", "Loc", now, 200);
+        CreateEventDto dto = new CreateEventDto("Event", "Desc", "Loc", now, 200, List.of());
         Event event = mapper.toEntityWithAvailableSeats(dto);
 
         assertThat(event.getTotalSeats()).isEqualTo(200);
         assertThat(event.getAvailableSeats()).isEqualTo(200);
     }
 }
-

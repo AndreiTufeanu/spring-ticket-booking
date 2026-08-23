@@ -4,6 +4,7 @@ import com.andreitufeanu.backend.event.dto.CreateEventDto;
 import com.andreitufeanu.backend.event.dto.EventResponseDto;
 import com.andreitufeanu.backend.event.dto.UpdateEventDto;
 import com.andreitufeanu.backend.event.service.EventService;
+import com.andreitufeanu.backend.exceptions.NotFoundException;
 import com.andreitufeanu.backend.security.jwt.JwtService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +51,9 @@ class EventControllerTest {
 
     @Test
     void getAllEvents_ShouldReturnList() throws Exception {
-        EventResponseDto dto = new EventResponseDto(eventId, "Event", "Desc", "Loc", now, 100, 80);
+        EventResponseDto dto = new EventResponseDto(
+                eventId, "Event", "Desc", "Loc", now, 100, 80, List.of()
+        );
         when(eventService.getUpcomingEvents()).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/events"))
@@ -61,7 +64,9 @@ class EventControllerTest {
 
     @Test
     void getEventById_ShouldReturnEvent() throws Exception {
-        EventResponseDto dto = new EventResponseDto(eventId, "Event", "Desc", "Loc", now, 100, 80);
+        EventResponseDto dto = new EventResponseDto(
+                eventId, "Event", "Desc", "Loc", now, 100, 80, List.of()
+        );
         when(eventService.getEventById(eventId)).thenReturn(dto);
 
         mockMvc.perform(get("/events/{id}", eventId))
@@ -70,17 +75,21 @@ class EventControllerTest {
     }
 
     @Test
-    void getEventById_ShouldReturn500_WhenServiceThrowsRuntimeException() throws Exception {
-        when(eventService.getEventById(eventId)).thenThrow(new RuntimeException("Event not found"));
+    void getEventById_ShouldReturn404_WhenNotFound() throws Exception {
+        when(eventService.getEventById(eventId)).thenThrow(new NotFoundException("Event not found"));
 
         mockMvc.perform(get("/events/{id}", eventId))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
     void createEvent_ShouldReturnCreated() throws Exception {
-        CreateEventDto dto = new CreateEventDto("New Event", "Desc", "Loc", now, 100);
-        EventResponseDto response = new EventResponseDto(eventId, "New Event", "Desc", "Loc", now, 100, 100);
+        CreateEventDto dto = new CreateEventDto(
+                "New Event", "Desc", "Loc", now, 100, List.of()
+        );
+        EventResponseDto response = new EventResponseDto(
+                eventId, "New Event", "Desc", "Loc", now, 100, 100, List.of()
+        );
         when(eventService.createEvent(any(CreateEventDto.class))).thenReturn(response);
 
         mockMvc.perform(post("/events")
@@ -93,7 +102,9 @@ class EventControllerTest {
 
     @Test
     void createEvent_ShouldReturnBadRequest_WhenInvalidData() throws Exception {
-        CreateEventDto invalid = new CreateEventDto("", "", "", null, 0);
+        CreateEventDto invalid = new CreateEventDto(
+                "", "", "", null, 0, List.of()
+        );
 
         mockMvc.perform(post("/events")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -103,8 +114,12 @@ class EventControllerTest {
 
     @Test
     void updateEvent_ShouldReturnUpdatedEvent() throws Exception {
-        UpdateEventDto dto = new UpdateEventDto("Updated", "Desc2", "Loc2", now);
-        EventResponseDto response = new EventResponseDto(eventId, "Updated", "Desc2", "Loc2", now, 100, 80);
+        UpdateEventDto dto = new UpdateEventDto(
+                "Updated", "Desc2", "Loc2", now, null
+        );
+        EventResponseDto response = new EventResponseDto(
+                eventId, "Updated", "Desc2", "Loc2", now, 100, 80, List.of()
+        );
         when(eventService.updateEvent(eq(eventId), any(UpdateEventDto.class))).thenReturn(response);
 
         mockMvc.perform(put("/events/{id}", eventId)
