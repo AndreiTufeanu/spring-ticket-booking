@@ -1,9 +1,10 @@
 package com.andreitufeanu.backend.event.dto;
 
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.*;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 public record CreateEventDto(
         @NotBlank(message = "Title is required")
@@ -22,5 +23,7 @@ public record CreateEventDto(
 
         @Min(value = 1, message = "Total seats must be at least {value}")
         @Max(value = 1_000_000, message = "Total seats can't exceed {value}")
-        int totalSeats)
+        int totalSeats,
+
+        List<UUID> categoryIds)
 { }

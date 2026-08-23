@@ -1,6 +1,7 @@
 package com.andreitufeanu.backend.event.dto;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 public record EventResponseDto(
@@ -10,5 +11,6 @@ public record EventResponseDto(
         String location,
         Instant eventDate,
         int totalSeats,
-        int availableSeats)
+        int availableSeats,
+        List<CategoryDto> categories)
 { }

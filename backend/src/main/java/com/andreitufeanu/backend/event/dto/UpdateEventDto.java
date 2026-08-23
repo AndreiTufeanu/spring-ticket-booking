@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.UUID;
 
 public record UpdateEventDto(
         @NotBlank(message = "Title is required")
@@ -19,5 +21,7 @@ public record UpdateEventDto(
         String location,
 
         @NotNull(message = "Date of the event is required")
-        Instant eventDate) {
+        Instant eventDate,
+
+        List<UUID> categoryIds) {
 }
