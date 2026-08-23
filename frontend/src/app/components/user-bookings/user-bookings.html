@@ -1,11 +1,4 @@
-<div class="user-container">
-    <header class="user-header">
-        <h1>User Dashboard ({{ currentUsername }})</h1>
-        <button class="btn-back" (click)="logout()">
-            Logout
-        </button>
-    </header>
-
+<div class="user-bookings">
     @if (loading()) {
     <div class="loading">Loading...</div>
     }

@@ -1,0 +1,53 @@
+<div class="ai-helper">
+    <div class="chat-window">
+        <div class="chat-messages">
+            @if (messages().length === 0) {
+            <div class="empty-state">
+                <p>Ask me anything about events or bookings.</p>
+            </div>
+            }
+
+            @for (message of messages(); track message.id) {
+            <div class="message-row" [class.user-row]="message.role === 'user'">
+                <div
+                    class="message-bubble"
+                    [class.user-bubble]="message.role === 'user'"
+                    [class.assistant-bubble]="message.role === 'assistant'">
+                    {{ message.content }}
+                </div>
+            </div>
+            }
+
+            @if (sending()) {
+            <div class="message-row">
+                <div class="message-bubble assistant-bubble typing">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+            </div>
+            }
+
+            <div #messagesEnd></div>
+        </div>
+
+        <div class="chat-input-bar">
+            <textarea
+                #chatInput
+                class="chat-input"
+                [ngModel]="draftMessage()"
+                (ngModelChange)="draftMessage.set($event)"
+                (input)="autoResize(chatInput)"
+                (keydown)="handleKeydown($event)"
+                placeholder="Type your message... (Enter to send, Shift+Enter for a new line)"
+                rows="1">
+            </textarea>
+            <button
+                class="btn-send"
+                (click)="sendMessage()"
+                [disabled]="!draftMessage().trim() || sending()">
+                Send
+            </button>
+        </div>
+    </div>
+</div>

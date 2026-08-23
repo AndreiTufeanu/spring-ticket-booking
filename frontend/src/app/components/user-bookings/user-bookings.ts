@@ -1,11 +1,9 @@
 import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { EventDto } from '../../models/event.model';
 import { CreateBookingDto, BookingDto } from '../../models/booking.model';
-import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-user-bookings',
@@ -16,11 +14,8 @@ import { AuthService } from '../../services/auth.service';
 })
 export class UserBookings implements OnInit {
   private readonly apiService = inject(ApiService);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
 
   // State
-  currentUsername: string = '';
   events = signal<EventDto[]>([]);
   bookings = signal<BookingDto[]>([]);
   loading = signal<boolean>(true);
@@ -28,11 +23,6 @@ export class UserBookings implements OnInit {
   selectedSeats: Record<string, number> = {};
 
   ngOnInit() {
-    this.currentUsername = this.authService.getUsername() || '';
-    if (!this.authService.isLoggedIn()) {
-      this.router.navigate(['/login']);
-      return;
-    }
     this.loadData();
   }
 
@@ -91,25 +81,4 @@ export class UserBookings implements OnInit {
       next: () => this.bookings.update(b => b.filter(booking => booking.id !== bookingId))
     });
   }
-
-  logout() {
-    this.authService.revoke().subscribe({
-      next: () => {
-        this.authService.removeToken();
-        this.router.navigate(['/login']);
-      },
-      error: () => {
-        this.authService.removeToken();
-        this.router.navigate(['/login']);
-      }
-    });
-  }
-
-  toUtcIso(dateString: string): string {
-    if (!dateString) return '';
-
-    const date = new Date(dateString);
-    return date.toISOString();
-  }
-
 }
