@@ -9,6 +9,7 @@ import com.andreitufeanu.backend.user.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseCookie;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Duration;
 
@@ -29,15 +30,15 @@ public class UserController {
     private static final String REFRESH_TOKEN_COOKIE = "refreshToken";
 
     private final UserService userService;
-    private final ObjectMapper objectMapper;
+    private final JsonMapper jsonMapper;
 
     @PostMapping("/register")
-    public ResponseEntity<UserResponseDto> registerUser(@RequestBody RegisterDto user) {
+    public ResponseEntity<UserResponseDto> registerUser(@Valid @RequestBody RegisterDto user) {
         return ResponseEntity.ok().body(userService.registerUser(user));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody LoginDto loginDto,
+    public ResponseEntity<String> loginUser(@Valid @RequestBody LoginDto loginDto,
                                                      HttpServletRequest request,
                                                      HttpServletResponse response) {
         AuthResponseDto result = userService.loginUser(loginDto);
@@ -45,7 +46,7 @@ public class UserController {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(objectMapper.writeValueAsString(result.accessToken()));
+                .body(jsonMapper.writeValueAsString(result.accessToken()));
     }
 
     @PostMapping("/refresh")
@@ -59,7 +60,7 @@ public class UserController {
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.APPLICATION_JSON)
-                .body(objectMapper.writeValueAsString(result.accessToken()));
+                .body(jsonMapper.writeValueAsString(result.accessToken()));
     }
 
     @PostMapping("/revoke")
