@@ -11,4 +11,5 @@ public interface EventRepository extends JpaRepository<Event, UUID> {
 
     List<Event> findByEventDateGreaterThanOrderByEventDateAsc(Instant currentDate);
 
+    boolean existsByCategoriesId(UUID categoryId);
 }
