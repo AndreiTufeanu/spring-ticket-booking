@@ -1,0 +1,28 @@
+<div class="category-picker">
+    <label>Categories:</label>
+
+    <div class="category-scroll-box">
+        @for (category of categories(); track category.id) {
+        <div
+            class="category-chip-option"
+            [class.selected]="isSelected(category.id)"
+            (click)="toggleCategory(category.id)">
+            {{ category.name }}
+        </div>
+        }
+        @if (categories().length === 0) {
+        <p class="no-categories">No categories yet — add some in Categories Management.</p>
+        }
+    </div>
+
+    @if (selectedCategories().length > 0) {
+    <div class="selected-categories">
+        @for (category of selectedCategories(); track category.id) {
+        <span class="selected-chip">
+            {{ category.name }}
+            <button type="button" class="chip-remove" (click)="removeCategory(category.id)">×</button>
+        </span>
+        }
+    </div>
+    }
+</div>

@@ -23,22 +23,32 @@ button:not(.btn-sm):not(.btn-admin) {
   margin: 0.25rem 0;
 }
 
-button:not(.btn-sm):not(.btn-admin):not(.btn-primary):not(.btn-secondary) {
+button:not(.btn-sm):not(.btn-admin):not(.btn-primary):not(.btn-secondary):not(.btn-back) {
   width: 100%;
 }
 
-/* Primary Purple (Back, Admin, default) */
-.btn-back,
+/* Primary Purple (Admin, default) */
 .btn-admin,
 .btn-primary {
   background: #10b981 !important;
   color: white;
 }
 
-.btn-back:hover,
 .btn-admin:hover,
 .btn-primary:hover {
   background: #059669 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
+
+/* Logout / Back — Red */
+.btn-back {
+  background: #ef4444 !important;
+  color: white;
+}
+
+.btn-back:hover {
+  background: #dc2626 !important;
   transform: translateY(-1px);
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }

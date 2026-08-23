@@ -1,0 +1,37 @@
+<div class="categories-container">
+    <h3>Categories Management</h3>
+
+    @if (loading()) {
+    <div class="loading">Loading categories...</div>
+    }
+
+    <section class="form-section">
+        <div class="form-inline">
+            <input
+                [(ngModel)]="newCategory.name"
+                (keyup.enter)="createCategory()"
+                placeholder="New category name"
+                class="form-input">
+            <button (click)="createCategory()" class="btn-primary">Add Category</button>
+        </div>
+    </section>
+
+    <section class="table-section">
+        <h3>Existing Categories ({{ categories().length }})</h3>
+
+        @if (categories().length === 0 && !loading()) {
+        <p>No categories found. Add one above!</p>
+        }
+
+        @if (categories().length > 0) {
+        <ul class="categories-list">
+            @for (category of categories(); track category.id) {
+            <li class="category-item">
+                <span class="category-name">{{ category.name }}</span>
+                <button (click)="deleteCategory(category.id)" class="btn-sm btn-delete">Delete</button>
+            </li>
+            }
+        </ul>
+        }
+    </section>
+</div>

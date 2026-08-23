@@ -1,119 +1,31 @@
 <div class="admin-container">
     <header class="admin-header">
-        <h1>Admin - Events Management ({{ currentUsername }})</h1>
+        <h1>Admin Panel ({{ currentUsername }})</h1>
         <button class="btn-back" (click)="logout()">
             Logout
         </button>
     </header>
-    
-    @if (loading()) {
-    <div class="loading">Loading events...</div>
+
+    <nav class="admin-tabs">
+        <button
+            class="tab-btn"
+            [class.active]="activeTab() === 'events'"
+            (click)="setTab('events')">
+            Events Management
+        </button>
+        <button
+            class="tab-btn"
+            [class.active]="activeTab() === 'categories'"
+            (click)="setTab('categories')">
+            Categories Management
+        </button>
+    </nav>
+
+    @if (activeTab() === 'events') {
+    <app-events-management></app-events-management>
     }
 
-    <!-- Create New Event Form -->
-    @if (!editingEvent) {
-    <section class="form-section">
-        <h3>Create New Event</h3>
-        <div class="form-vertical">
-            <div class="form-field">
-                <label>Event Title:</label>
-                <input [(ngModel)]="newEvent.title" placeholder="Event Title" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Description:</label>
-                <input [(ngModel)]="newEvent.description" placeholder="Description" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Location:</label>
-                <input [(ngModel)]="newEvent.location" placeholder="Location" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Event Date:</label>
-                <input [(ngModel)]="newEvent.eventDate" type="datetime-local" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Total Seats:</label>
-                <input [(ngModel)]="newEvent.totalSeats" type="number" placeholder="Total Seats" class="form-input">
-            </div>
-            <button (click)="createEvent()" class="btn-primary">Create Event</button>
-        </div>
-    </section>
+    @if (activeTab() === 'categories') {
+    <app-categories-management></app-categories-management>
     }
-
-    <!-- Edit Event Form -->
-    @if (editingEvent) {
-    <section class="form-section">
-        <h3>Edit Event: {{ editingEvent.title }}</h3>
-        <div class="form-vertical">
-            <div class="form-field">
-                <label>Event Title:</label>
-                <input [(ngModel)]="editEvent.title" placeholder="Event Title" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Description:</label>
-                <input [(ngModel)]="editEvent.description" placeholder="Description" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Location:</label>
-                <input [(ngModel)]="editEvent.location" placeholder="Location" class="form-input">
-            </div>
-            <div class="form-field">
-                <label>Event Date:</label>
-                <input [(ngModel)]="editEvent.eventDate" type="datetime-local" class="form-input">
-            </div>
-            <div class="form-actions">
-                <button (click)="updateEvent()" class="btn-primary">Update Event</button>
-                <button (click)="cancelEdit()" class="btn-secondary">Cancel</button>
-            </div>
-        </div>
-    </section>
-    }
-
-    <!-- Events Table -->
-    <section class="table-section">
-        <h3>Upcoming Events ({{ events().length }})</h3>
-
-        @if (events().length === 0 && !loading()) {
-        <p>No events found. Create one above!</p>
-        }
-
-        @if (events().length > 0) {
-        <div class="events-list">
-            @for (event of events(); track event.id) {
-            <div class="event-item">
-                <div class="event-details">
-                    <div class="detail-row">
-                        <label>Title:</label>
-                        <span>{{ event.title }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <label>Description:</label>
-                        <span>{{ event.description }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <label>Location:</label>
-                        <span>{{ event.location }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <label>Date:</label>
-                        <span>{{ event.eventDate | date:'medium' }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <label>Total Seats:</label>
-                        <span>{{ event.totalSeats }}</span>
-                    </div>
-                    <div class="detail-row">
-                        <label>Available:</label>
-                        <span class="badge">{{ event.availableSeats }}</span>
-                    </div>
-                </div>
-                <div class="event-actions">
-                    <button (click)="editEventHandler(event)" class="btn-sm btn-edit">Edit</button>
-                    <button (click)="deleteEvent(event.id)" class="btn-sm btn-delete">Delete</button>
-                </div>
-            </div>
-            }
-        </div>
-        }
-    </section>
 </div>
