@@ -92,10 +92,6 @@
                         <span>{{ event.title }}</span>
                     </div>
                     <div class="detail-row">
-                        <label>Description:</label>
-                        <span>{{ event.description }}</span>
-                    </div>
-                    <div class="detail-row">
                         <label>Location:</label>
                         <span>{{ event.location }}</span>
                     </div>
@@ -122,6 +118,13 @@
                             }
                         </span>
                     </div>
+                    <button
+                        type="button"
+                        class="btn-about"
+                        (click)="openDescription(event.title, event.description)">
+                        <span class="info-icon">ⓘ</span>
+                        <span>About this event</span>
+                    </button>
                 </div>
                 <div class="event-actions">
                     <button (click)="editEventHandler(event)" class="btn-sm btn-edit">Edit</button>
@@ -133,3 +136,10 @@
         }
     </section>
 </div>
+
+<app-description-modal
+    [open]="activeDescription() !== null"
+    [eventTitle]="activeDescription()?.title ?? ''"
+    [eventDescription]="activeDescription()?.description ?? ''"
+    (closed)="closeDescription()">
+</app-description-modal>

@@ -5,16 +5,19 @@ import { ApiService } from '../../../services/api.service';
 import { EventDto } from '../../../models/event.model';
 import { CreateBookingDto, BookingDto } from '../../../models/booking.model';
 import { CategoryDto } from '../../../models/category.model';
+import { NotificationService } from '../../../services/notification.service';
+import { DescriptionModal } from '../../description-modal/description-modal';
 
 @Component({
   selector: 'app-user-bookings',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DescriptionModal],
   templateUrl: './user-bookings.html',
   styleUrl: './user-bookings.css',
 })
 export class UserBookings implements OnInit {
   private readonly apiService = inject(ApiService);
+  private readonly notificationService = inject(NotificationService);
 
   // State
   events = signal<EventDto[]>([]);
@@ -23,10 +26,13 @@ export class UserBookings implements OnInit {
 
   selectedSeats: Record<string, number> = {};
 
+  // Description modal
+  activeDescription = signal<{ title: string; description: string } | null>(null);
+
   // Filtering
   categories = signal<CategoryDto[]>([]);
-  selectedCategoryIds = signal<string[]>([]);   // applied — drives the API call + chips
-  pendingCategoryIds = signal<string[]>([]);    // scratch state while the panel is open
+  selectedCategoryIds = signal<string[]>([]);
+  pendingCategoryIds = signal<string[]>([]);
   filterPanelOpen = signal<boolean>(false);
   categorySearchTerm = signal<string>('');
 
@@ -110,11 +116,41 @@ export class UserBookings implements OnInit {
     });
   }
 
-  // --- Filtering ---
+  openDescription(title: string, description: string) {
+    this.activeDescription.set({ title, description });
+  }
+
+  closeDescription() {
+    this.activeDescription.set(null);
+  }
+
+  goToEvent(eventId: string) {
+    const target = document.getElementById(`event-card-${eventId}`);
+
+    if (!target) {
+      this.notificationService.showError(
+        "This event isn't currently visible — it may be filtered out or no longer upcoming."
+      );
+      return;
+    }
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    target.classList.remove('event-highlight-fade');
+    target.classList.add('event-highlight');
+
+    setTimeout(() => {
+      target.classList.remove('event-highlight');
+      target.classList.add('event-highlight-fade');
+    }, 1400);
+
+    setTimeout(() => {
+      target.classList.remove('event-highlight-fade');
+    }, 1400 + 1300);
+  }
 
   toggleFilterPanel() {
     if (!this.filterPanelOpen()) {
-      // Seed the panel's working state with whatever is currently applied
       this.pendingCategoryIds.set([...this.selectedCategoryIds()]);
       this.categorySearchTerm.set('');
     }

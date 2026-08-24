@@ -13,10 +13,28 @@
 
             <div class="events-grid">
                 @for (event of events(); track event.id) {
-                <div class="event-card">
-                    <h4>{{ event.title }}</h4>
-                    <p>{{ event.eventDate | date:'medium' }}</p>
-                    <p class="seats">Available: {{ event.availableSeats }} seats</p>
+                <div class="event-card" id="event-card-{{ event.id }}">
+                    <div class="card-header">
+                        <h4>{{ event.title }}</h4>
+                        <span class="badge">{{ event.availableSeats }} left</span>
+                    </div>
+
+                    <div class="card-meta">
+                        <span class="meta-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <polyline points="12 7 12 12 15 15"></polyline>
+                            </svg>
+                            {{ event.eventDate | date:'MMM d, y, h:mm a' }}
+                        </span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"></path>
+                                <circle cx="12" cy="10" r="2.5"></circle>
+                            </svg>
+                            {{ event.location }}
+                        </span>
+                    </div>
 
                     <div class="event-categories">
                         @for (category of event.categories; track category.id) {
@@ -29,10 +47,25 @@
 
                     <div class="book-form">
                         <label>Seat Number:</label>
-                        <input [ngModel]="getSelectedSeat(event.id)" (ngModelChange)="setSelectedSeat(event.id, $event)"
-                            type="number" min="1" placeholder="Seat #">
-                        <button (click)="bookSeat(event.id)" [disabled]="getSelectedSeat(event.id) < 1" class="btn-book">
-                            Book Seat #{{ getSelectedSeat(event.id) }}
+                        <div class="book-form-row">
+                            <input
+                                class="seat-input"
+                                [ngModel]="getSelectedSeat(event.id)"
+                                (ngModelChange)="setSelectedSeat(event.id, $event)"
+                                type="number" min="1" placeholder="Seat #">
+                            <button (click)="bookSeat(event.id)" [disabled]="getSelectedSeat(event.id) < 1" class="btn-book">
+                                Book Seat #{{ getSelectedSeat(event.id) }}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="description-toggle">
+                        <button
+                            type="button"
+                            class="btn-about"
+                            (click)="openDescription(event.title, event.description)">
+                            <span class="info-icon">ⓘ</span>
+                            <span>About this event</span>
                         </button>
                     </div>
                 </div>
@@ -51,12 +84,53 @@
             <div class="bookings-grid">
                 @for (booking of bookings(); track booking.id) {
                 <div class="booking-card">
-                    <div class="booking-info">
+                    <div class="card-header">
                         <h4>{{ booking.eventTitle }}</h4>
-                        <p>Seat: {{ booking.seatNumber }}</p>
-                        <p>Date: {{ booking.eventDate | date:'medium' }}</p>
+                        <button class="btn-goto" (click)="goToEvent(booking.eventId)" title="Go to event" aria-label="Go to event">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M7 17L17 7"></path>
+                                <path d="M7 7h10v10"></path>
+                            </svg>
+                        </button>
                     </div>
-                    <button (click)="cancelBooking(booking.id)" class="btn-cancel">Cancel</button>
+
+                    <div class="card-meta">
+                        <span class="meta-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="9"></circle>
+                                <polyline points="12 7 12 12 15 15"></polyline>
+                            </svg>
+                            {{ booking.eventDate | date:'MMM d, y, h:mm a' }}
+                        </span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M5 11V7a3 3 0 0 1 3-3h8a3 3 0 0 1 3 3v4"></path>
+                                <path d="M4 11h16v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-4z"></path>
+                            </svg>
+                            Seat #{{ booking.seatNumber }}
+                        </span>
+                        <span class="meta-item">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 21s-7-6.5-7-11a7 7 0 0 1 14 0c0 4.5-7 11-7 11z"></path>
+                                <circle cx="12" cy="10" r="2.5"></circle>
+                            </svg>
+                            {{ booking.location }}
+                        </span>
+                    </div>
+
+                    <div class="description-toggle">
+                        <button
+                            type="button"
+                            class="btn-about"
+                            (click)="openDescription(booking.eventTitle, booking.description)">
+                            <span class="info-icon">ⓘ</span>
+                            <span>About this event</span>
+                        </button>
+                    </div>
+
+                    <div class="card-footer">
+                        <button (click)="cancelBooking(booking.id)" class="btn-cancel">Cancel</button>
+                    </div>
                 </div>
                 }
             </div>
@@ -121,3 +195,10 @@
         }
     </aside>
 </div>
+
+<app-description-modal
+    [open]="activeDescription() !== null"
+    [eventTitle]="activeDescription()?.title ?? ''"
+    [eventDescription]="activeDescription()?.description ?? ''"
+    (closed)="closeDescription()">
+</app-description-modal>

@@ -5,11 +5,12 @@ import { ApiService } from '../../../services/api.service';
 import { EventDto, CreateEventDto, UpdateEventDto } from '../../../models/event.model';
 import { CategoryDto } from '../../../models/category.model';
 import { CategoryPicker } from './category-picker/category-picker';
+import { DescriptionModal } from '../../description-modal/description-modal';
 
 @Component({
   selector: 'app-events-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, CategoryPicker],
+  imports: [CommonModule, FormsModule, CategoryPicker, DescriptionModal],
   templateUrl: './events-management.html',
   styleUrl: './events-management.css',
 })
@@ -25,6 +26,9 @@ export class EventsManagement implements OnInit {
   editingEvent: EventDto | null = null;
   newEvent: CreateEventDto = { title: '', description: '', location: '', eventDate: '', totalSeats: 0, categoryIds: [] };
   editEvent: UpdateEventDto = { title: '', description: '', location: '', eventDate: '', categoryIds: [] };
+
+  // Description modal
+  activeDescription = signal<{ title: string; description: string } | null>(null);
 
   ngOnInit() {
     this.loadEvents();
@@ -114,5 +118,13 @@ export class EventsManagement implements OnInit {
 
     const date = new Date(dateString);
     return date.toISOString();
+  }
+
+  openDescription(title: string, description: string) {
+    this.activeDescription.set({ title, description });
+  }
+
+  closeDescription() {
+    this.activeDescription.set(null);
   }
 }

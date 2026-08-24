@@ -4,6 +4,8 @@ export interface BookingDto {
   seatNumber: number;
   eventTitle: string;
   eventDate: string;
+  location: string;
+  description: string;
 }
 
 export interface CreateBookingDto {
