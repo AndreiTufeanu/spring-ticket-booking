@@ -8,9 +8,12 @@ import com.andreitufeanu.backend.event.entity.Event;
 import com.andreitufeanu.backend.event.mapper.EventMapper;
 import com.andreitufeanu.backend.event.repository.CategoryRepository;
 import com.andreitufeanu.backend.event.repository.EventRepository;
+import com.andreitufeanu.backend.event.specification.EventSpecifications;
 import com.andreitufeanu.backend.exceptions.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,9 +32,14 @@ public class EventService {
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
 
-    public List<EventResponseDto> getUpcomingEvents() {
+    public List<EventResponseDto> getUpcomingEvents(List<UUID> categoryIds) {
+        Specification<Event> spec = Specification
+                .where(EventSpecifications.isUpcoming(Instant.now()))
+                .and(EventSpecifications.hasAllCategories(categoryIds));
+
+
         return eventRepository
-                .findByEventDateGreaterThanOrderByEventDateAsc(Instant.now())
+                .findAll(spec, Sort.by(Sort.Direction.ASC, "eventDate"))
                 .stream()
                 .map(eventMapper::toResponse)
                 .toList();

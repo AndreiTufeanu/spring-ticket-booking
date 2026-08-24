@@ -22,8 +22,9 @@ public class EventController {
     private final EventService eventService;
 
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
-        return ResponseEntity.ok().body(eventService.getUpcomingEvents());
+    public ResponseEntity<List<EventResponseDto>> getAllEvents(
+            @RequestParam(required = false) List<UUID> categoryIds) {
+        return ResponseEntity.ok().body(eventService.getUpcomingEvents(categoryIds));
     }
 
     @GetMapping("/{id}")
