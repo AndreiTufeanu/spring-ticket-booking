@@ -15,6 +15,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.Instant;
 import java.util.List;
@@ -61,27 +63,45 @@ class EventServiceTest {
 
     @Test
     void getUpcomingEvents_ShouldReturnList() {
-        when(eventRepository.findByEventDateGreaterThanOrderByEventDateAsc(any(Instant.class)))
+        when(eventRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(List.of(event));
         when(eventMapper.toResponse(event)).thenReturn(new EventResponseDto(
                 eventId, "Test Event", "Desc", "Loc", event.getEventDate(), 100, 80, List.of()));
 
-        List<EventResponseDto> result = eventService.getUpcomingEvents();
+        List<EventResponseDto> result = eventService.getUpcomingEvents(null);
 
         assertThat(result).hasSize(1);
         assertThat(result.get(0).id()).isEqualTo(eventId);
-        verify(eventRepository).findByEventDateGreaterThanOrderByEventDateAsc(any(Instant.class));
+        verify(eventRepository).findAll(any(Specification.class), any(Sort.class));
     }
 
     @Test
     void getUpcomingEvents_ShouldReturnEmptyList_WhenNoFutureEvents() {
-        when(eventRepository.findByEventDateGreaterThanOrderByEventDateAsc(any(Instant.class)))
+        when(eventRepository.findAll(any(Specification.class), any(Sort.class)))
                 .thenReturn(List.of());
 
-        List<EventResponseDto> result = eventService.getUpcomingEvents();
+        List<EventResponseDto> result = eventService.getUpcomingEvents(null);
 
         assertThat(result).isEmpty();
-        verify(eventRepository).findByEventDateGreaterThanOrderByEventDateAsc(any(Instant.class));
+        verify(eventRepository).findAll(any(Specification.class), any(Sort.class));
+    }
+
+    @Test
+    void getUpcomingEvents_ShouldQueryWithSpecificationSortedByEventDateAscending() {
+        UUID categoryId = UUID.randomUUID();
+        ArgumentCaptor<Specification<Event>> specCaptor = ArgumentCaptor.forClass(Specification.class);
+        ArgumentCaptor<Sort> sortCaptor = ArgumentCaptor.forClass(Sort.class);
+        when(eventRepository.findAll(specCaptor.capture(), sortCaptor.capture()))
+                .thenReturn(List.of(event));
+        when(eventMapper.toResponse(event)).thenReturn(new EventResponseDto(
+                eventId, "Test Event", "Desc", "Loc", event.getEventDate(), 100, 80, List.of()));
+
+        eventService.getUpcomingEvents(List.of(categoryId));
+
+        assertThat(specCaptor.getValue()).isNotNull();
+        Sort.Order order = sortCaptor.getValue().getOrderFor("eventDate");
+        assertThat(order).isNotNull();
+        assertThat(order.getDirection()).isEqualTo(Sort.Direction.ASC);
     }
 
     @Test

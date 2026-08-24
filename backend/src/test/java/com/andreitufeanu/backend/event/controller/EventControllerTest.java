@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -54,12 +55,28 @@ class EventControllerTest {
         EventResponseDto dto = new EventResponseDto(
                 eventId, "Event", "Desc", "Loc", now, 100, 80, List.of()
         );
-        when(eventService.getUpcomingEvents()).thenReturn(List.of(dto));
+        when(eventService.getUpcomingEvents(isNull())).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/events"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(eventId.toString()))
                 .andExpect(jsonPath("$[0].title").value("Event"));
+    }
+
+    @Test
+    void getAllEvents_ShouldFilterByCategoryIds() throws Exception {
+        UUID categoryId1 = UUID.randomUUID();
+        UUID categoryId2 = UUID.randomUUID();
+        EventResponseDto dto = new EventResponseDto(
+                eventId, "Event", "Desc", "Loc", now, 100, 80, List.of()
+        );
+        when(eventService.getUpcomingEvents(List.of(categoryId1, categoryId2)))
+                .thenReturn(List.of(dto));
+
+        mockMvc.perform(get("/events")
+                        .param("categoryIds", categoryId1.toString(), categoryId2.toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].id").value(eventId.toString()));
     }
 
     @Test
