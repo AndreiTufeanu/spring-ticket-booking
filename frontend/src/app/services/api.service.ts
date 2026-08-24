@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CreateEventDto, UpdateEventDto, EventDto } from '../models/event.model';
 import { BookingDto, CreateBookingDto } from '../models/booking.model';
@@ -31,8 +31,14 @@ export class ApiService {
     }
 
     // Events
-    getEvents(): Observable<EventDto[]> {
-        return this.http.get<EventDto[]>(`${this.apiUrl}/${API_PATHS.EVENTS}`);
+    getEvents(categoryIds?: string[]): Observable<EventDto[]> {
+        let params = new HttpParams();
+        if (categoryIds && categoryIds.length > 0) {
+            categoryIds.forEach(id => {
+                params = params.append('categoryIds', id);
+            });
+        }
+        return this.http.get<EventDto[]>(`${this.apiUrl}/${API_PATHS.EVENTS}`, { params });
     }
 
     getEventById(id: string): Observable<EventDto> {
