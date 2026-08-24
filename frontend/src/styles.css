@@ -23,7 +23,7 @@ button:not(.btn-sm):not(.btn-admin) {
   margin: 0.25rem 0;
 }
 
-button:not(.btn-sm):not(.btn-admin):not(.btn-primary):not(.btn-secondary):not(.btn-back):not(.btn-send):not(.btn-book):not(.btn-cancel) {
+button:not(.btn-sm):not(.btn-admin):not(.btn-primary):not(.btn-secondary):not(.btn-back):not(.btn-send):not(.btn-book):not(.btn-cancel):not(.chip-remove):not(.btn-save-filters):not(.btn-clear-filters) {
   width: 100%;
 }
 
