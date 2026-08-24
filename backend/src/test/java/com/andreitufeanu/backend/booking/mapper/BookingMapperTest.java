@@ -30,6 +30,8 @@ class BookingMapperTest {
         event.setId(eventId);
         event.setTitle("Concert");
         event.setEventDate(eventDate);
+        event.setLocation("Madison Square Garden");
+        event.setDescription("An amazing concert");
 
         Booking booking = new Booking();
         booking.setId(bookingId);
@@ -44,5 +46,7 @@ class BookingMapperTest {
         assertThat(dto.seatNumber()).isEqualTo(5);
         assertThat(dto.eventTitle()).isEqualTo("Concert");
         assertThat(dto.eventDate()).isEqualTo(eventDate);
+        assertThat(dto.location()).isEqualTo("Madison Square Garden");
+        assertThat(dto.description()).isEqualTo("An amazing concert");
     }
 }

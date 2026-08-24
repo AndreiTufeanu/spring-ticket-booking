@@ -74,6 +74,8 @@ class BookingServiceTest {
         event.setEventDate(now);
         event.setTotalSeats(10);
         event.setAvailableSeats(8);
+        event.setLocation("Madison Square Garden");
+        event.setDescription("An amazing concert");
 
         booking = new Booking();
         booking.setId(bookingId);
@@ -85,7 +87,10 @@ class BookingServiceTest {
     @Test
     void getUserBookings_ShouldReturnList() {
         when(bookingRepository.findBookingsForUser(userId)).thenReturn(List.of(booking));
-        when(bookingMapper.toDto(booking)).thenReturn(new BookingDto(bookingId, eventId, 3, "Concert", now));
+        when(bookingMapper.toDto(booking)).thenReturn(
+                new BookingDto(bookingId, eventId, 3, "Concert", now,
+                        "Madison Square Garden", "An amazing concert")
+        );
 
         List<BookingDto> result = bookingService.getUserBookings(userId);
 
@@ -97,7 +102,10 @@ class BookingServiceTest {
     @Test
     void getBookingById_ShouldReturnBooking_WhenExists() {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(bookingMapper.toDto(booking)).thenReturn(new BookingDto(bookingId, eventId, 3, "Concert", now));
+        when(bookingMapper.toDto(booking)).thenReturn(
+                new BookingDto(bookingId, eventId, 3, "Concert", now,
+                        "Madison Square Garden", "An amazing concert")
+        );
 
         BookingDto result = bookingService.getBookingById(bookingId);
 
@@ -121,7 +129,10 @@ class BookingServiceTest {
         when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
         when(userRepository.getReferenceById(userId)).thenReturn(user);
         when(bookingRepository.saveAndFlush(any(Booking.class))).thenReturn(booking);
-        when(bookingMapper.toDto(any(Booking.class))).thenReturn(new BookingDto(bookingId, eventId, 3, "Concert", now));
+        when(bookingMapper.toDto(any(Booking.class))).thenReturn(
+                new BookingDto(bookingId, eventId, 3, "Concert", now,
+                        "Madison Square Garden", "An amazing concert")
+        );
 
         ArgumentCaptor<Booking> bookingCaptor = ArgumentCaptor.forClass(Booking.class);
         ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);

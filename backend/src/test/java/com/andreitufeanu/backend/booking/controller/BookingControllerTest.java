@@ -53,6 +53,9 @@ class BookingControllerTest {
     private final UUID eventId = UUID.randomUUID();
     private final Instant now = Instant.now();
 
+    private static final String LOCATION = "Madison Square Garden";
+    private static final String DESCRIPTION = "An amazing concert";
+
     @BeforeEach
     void setUp() {
         Authentication auth = new UsernamePasswordAuthenticationToken(userId.toString(), null, List.of());
@@ -61,29 +64,33 @@ class BookingControllerTest {
 
     @Test
     void getUserBookings_ShouldReturnList() throws Exception {
-        BookingDto dto = new BookingDto(bookingId, eventId, 3, "Concert", now);
+        BookingDto dto = new BookingDto(bookingId, eventId, 3, "Concert", now, LOCATION, DESCRIPTION);
         when(bookingService.getUserBookings(userId)).thenReturn(List.of(dto));
 
         mockMvc.perform(get("/bookings"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].id").value(bookingId.toString()))
-                .andExpect(jsonPath("$[0].seatNumber").value(3));
+                .andExpect(jsonPath("$[0].seatNumber").value(3))
+                .andExpect(jsonPath("$[0].location").value(LOCATION))
+                .andExpect(jsonPath("$[0].description").value(DESCRIPTION));
     }
 
     @Test
     void getBookingById_ShouldReturnBooking() throws Exception {
-        BookingDto dto = new BookingDto(bookingId, eventId, 3, "Concert", now);
+        BookingDto dto = new BookingDto(bookingId, eventId, 3, "Concert", now, LOCATION, DESCRIPTION);
         when(bookingService.getBookingById(bookingId)).thenReturn(dto);
 
         mockMvc.perform(get("/bookings/{id}", bookingId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(bookingId.toString()));
+                .andExpect(jsonPath("$.id").value(bookingId.toString()))
+                .andExpect(jsonPath("$.location").value(LOCATION))
+                .andExpect(jsonPath("$.description").value(DESCRIPTION));
     }
 
     @Test
     void createBooking_ShouldReturnCreated() throws Exception {
         CreateBookingDto dto = new CreateBookingDto(eventId, 3);
-        BookingDto response = new BookingDto(bookingId, eventId, 3, "Concert", now);
+        BookingDto response = new BookingDto(bookingId, eventId, 3, "Concert", now, LOCATION, DESCRIPTION);
         when(bookingService.createBooking(eq(userId), any(CreateBookingDto.class))).thenReturn(response);
 
         mockMvc.perform(post("/bookings")
@@ -91,7 +98,9 @@ class BookingControllerTest {
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(header().string("Location", "/bookings/" + bookingId))
-                .andExpect(jsonPath("$.id").value(bookingId.toString()));
+                .andExpect(jsonPath("$.id").value(bookingId.toString()))
+                .andExpect(jsonPath("$.location").value(LOCATION))
+                .andExpect(jsonPath("$.description").value(DESCRIPTION));
     }
 
     @Test
