@@ -8,5 +8,7 @@ public record BookingDto(
         UUID eventId,
         int seatNumber,
         String eventTitle,
-        Instant eventDate)
+        Instant eventDate,
+        String location,
+        String description)
 { }

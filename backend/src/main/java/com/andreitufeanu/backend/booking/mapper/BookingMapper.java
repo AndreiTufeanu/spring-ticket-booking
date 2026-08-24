@@ -11,5 +11,6 @@ public interface BookingMapper {
     @Mapping(target = "eventId", source = "event.id")
     @Mapping(target = "eventTitle", source = "event.title")
     @Mapping(target = "eventDate", source = "event.eventDate")
+    @Mapping(target = ".", source = "event")
     BookingDto toDto(Booking booking);
 }
