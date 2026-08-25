@@ -1,25 +1,32 @@
 package com.andreitufeanu.backend.chat.controller;
 
+import com.andreitufeanu.backend.chat.dto.ChatMessageDto;
+import com.andreitufeanu.backend.chat.dto.ChatRequest;
+import com.andreitufeanu.backend.chat.service.ChatService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/chat")
 @RequiredArgsConstructor
 public class ChatController {
 
-    private final ChatClient chatClient;
+    private final ChatService chatService;
 
-    @GetMapping
-    public String getMessage(@RequestParam("message") String message) {
-        return chatClient.prompt()
-                .user(message)
-                .call()
-                .content();
+    @PostMapping
+    public ChatMessageDto sendMessage(@Valid @RequestBody ChatRequest request, Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        return chatService.sendMessage(userId, request.message());
     }
 
+    @GetMapping("/messages")
+    public List<ChatMessageDto> getMessages(Authentication authentication) {
+        UUID userId = UUID.fromString(authentication.getName());
+        return chatService.getMessages(userId);
+    }
 }
