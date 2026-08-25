@@ -11,6 +11,7 @@ import com.andreitufeanu.backend.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,14 +34,17 @@ public class ChatService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found: " + userId));
 
-        chatMessageRepository.save(
-                new ChatMessage(user, ChatMessageRole.USER, message, Instant.now())
-        );
-
-        String response = chatClient.prompt()
-                .user(message)
-                .call()
-                .content();
+        Instant sentAt = Instant.now();
+        String response;
+        try {
+            response = chatClient.prompt()
+                    .user(message)
+                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId.toString()))
+                    .call()
+                    .content();
+        } finally {
+            chatMessageRepository.save(new ChatMessage(user, ChatMessageRole.USER, message, sentAt));
+        }
 
         ChatMessage assistantMessage = chatMessageRepository.save(
                 new ChatMessage(user, ChatMessageRole.ASSISTANT, response, Instant.now())
