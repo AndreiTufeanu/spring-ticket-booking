@@ -30,7 +30,8 @@ public class SecurityConfig {
                                 "/users/register",
                                 "/users/login",
                                 "/users/refresh",
-                                "/users/revoke")
+                                "/users/revoke",
+                                "/chat")
                         .permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
