@@ -3,6 +3,8 @@ export const API_PATHS = {
   EVENTS: 'events',
   BOOKINGS: 'bookings',
   CATEGORIES: 'categories',
+  CHAT: 'chat',
+  CHAT_MESSAGES: 'chat/messages',
 
   LOGIN: 'users/login',
   REGISTER: 'users/register',

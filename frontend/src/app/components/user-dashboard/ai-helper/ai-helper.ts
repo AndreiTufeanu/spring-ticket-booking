@@ -1,7 +1,8 @@
-import { Component, signal, ElementRef, viewChild, effect } from '@angular/core';
+import { Component, signal, ElementRef, viewChild, effect, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ChatMessage } from '../../../models/chat.model';
+import { ApiService } from '../../../services/api.service';
 
 @Component({
   selector: 'app-ai-helper',
@@ -10,7 +11,8 @@ import { ChatMessage } from '../../../models/chat.model';
   templateUrl: './ai-helper.html',
   styleUrl: './ai-helper.css',
 })
-export class AiHelper {
+export class AiHelper implements OnInit {
+  private readonly api = inject(ApiService);
   private readonly messagesEnd = viewChild<ElementRef<HTMLDivElement>>('messagesEnd');
   private readonly chatInput = viewChild<ElementRef<HTMLTextAreaElement>>('chatInput');
 
@@ -19,7 +21,6 @@ export class AiHelper {
   sending = signal<boolean>(false);
 
   constructor() {
-    // Auto-scroll to the latest message whenever the list changes
     effect(() => {
       this.messages();
       this.sending();
@@ -27,25 +28,40 @@ export class AiHelper {
     });
   }
 
+  ngOnInit() {
+    this.api.getChatMessages().subscribe({
+      next: (msgs) => this.messages.set(msgs),
+      error: (err) => console.error('Failed to load chat history', err),
+    });
+  }
+
   sendMessage() {
     const content = this.draftMessage().trim();
     if (!content || this.sending()) return;
 
-    this.messages.update(msgs => [...msgs, { id: crypto.randomUUID(), role: 'user', content }]);
+    this.messages.update(msgs => [
+      ...msgs,
+      { id: crypto.randomUUID(), role: 'user', content }
+    ]);
     this.draftMessage.set('');
 
     const textarea = this.chatInput()?.nativeElement;
     if (textarea) textarea.style.height = 'auto';
 
-    // TODO: replace this block with a real API call once the backend endpoint exists.
     this.sending.set(true);
-    setTimeout(() => {
-      this.messages.update(msgs => [
-        ...msgs,
-        { id: crypto.randomUUID(), role: 'assistant', content: 'This is a placeholder response — hook me up to the backend to get real answers.' }
-      ]);
-      this.sending.set(false);
-    }, 600);
+    this.api.sendChatMessage(content).subscribe({
+      next: (assistantMessage) => {
+        this.messages.update(msgs => [...msgs, assistantMessage]);
+        this.sending.set(false);
+      },
+      error: () => {
+        this.messages.update(msgs => [
+          ...msgs,
+          { id: crypto.randomUUID(), role: 'assistant', content: 'Something went wrong — try again in a moment.' }
+        ]);
+        this.sending.set(false);
+      },
+    });
   }
 
   handleKeydown(event: KeyboardEvent) {

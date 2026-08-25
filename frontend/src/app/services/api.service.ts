@@ -6,6 +6,7 @@ import { BookingDto, CreateBookingDto } from '../models/booking.model';
 import { CategoryDto, CreateCategoryDto } from '../models/category.model';
 import { environment } from '../../environments/environment';
 import { API_PATHS } from '../constants/api-paths';
+import { ChatMessage } from '../models/chat.model';
 
 @Injectable({
     providedIn: 'root'
@@ -28,6 +29,15 @@ export class ApiService {
             `${this.apiUrl}/${API_PATHS.REGISTER}`,
             { username, password }
         );
+    }
+
+    // Chat
+    sendChatMessage(message: string): Observable<ChatMessage> {
+        return this.http.post<ChatMessage>(`${this.apiUrl}/${API_PATHS.CHAT}`, { message });
+    }
+
+    getChatMessages(): Observable<ChatMessage[]> {
+        return this.http.get<ChatMessage[]>(`${this.apiUrl}/${API_PATHS.CHAT_MESSAGES}`);
     }
 
     // Events
