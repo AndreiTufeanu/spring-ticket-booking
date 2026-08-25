@@ -1,4 +1,9 @@
 spring:
+  ai:
+    ollama:
+      base-url: ${OLLAMA_BASE_URL}
+      init:
+        pull-model-strategy: never
   application:
     name: backend
   config:
