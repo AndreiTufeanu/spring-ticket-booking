@@ -19,6 +19,7 @@ public class EventDocumentMapper {
                 .collect(Collectors.joining(", "));
 
         String content = """
+                [ID: %s]
                 Event: %s
                 Description: %s
                 Location: %s
@@ -27,6 +28,7 @@ public class EventDocumentMapper {
                 Total Seats: %s
                 Available Seats: %s
                 """.formatted(
+                event.getId(),
                 event.getTitle(),
                 event.getDescription(),
                 event.getLocation(),
