@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -40,6 +41,7 @@ public class ChatService {
             response = chatClient.prompt()
                     .user(message)
                     .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId.toString()))
+                    .toolContext(Map.of("userId", userId.toString()))
                     .call()
                     .content();
         } finally {
