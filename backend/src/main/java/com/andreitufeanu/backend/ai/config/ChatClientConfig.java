@@ -1,6 +1,7 @@
 package com.andreitufeanu.backend.ai.config;
 
 import com.andreitufeanu.backend.ai.rag.RagDocumentType;
+import com.andreitufeanu.backend.ai.tools.BookingTools;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
 import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvisor;
@@ -23,7 +24,8 @@ public class ChatClientConfig {
     public ChatClient chatClient(
             ChatModel chatModel,
             ChatMemory chatMemory,
-            VectorStore vectorStore) {
+            VectorStore vectorStore,
+            BookingTools bookingTools) {
         return ChatClient.builder(chatModel)
                 .defaultSystem(systemPrompt)
                 .defaultAdvisors(
@@ -36,6 +38,7 @@ public class ChatClientConfig {
                                         .build())
                                 .build()
                 )
+                .defaultTools(bookingTools)
                 .build();
     }
 }
