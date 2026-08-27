@@ -1,5 +1,6 @@
 package com.andreitufeanu.backend.booking.service;
 
+import com.andreitufeanu.backend.ai.rag.EventRagService;
 import com.andreitufeanu.backend.booking.dto.BookingDto;
 import com.andreitufeanu.backend.booking.dto.CreateBookingDto;
 import com.andreitufeanu.backend.booking.entity.Booking;
@@ -31,6 +32,7 @@ public class BookingService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
     private final BookingMapper bookingMapper;
+    private final EventRagService eventRagService;
 
     public List<BookingDto> getUserBookings(UUID userId) {
         return bookingRepository.findBookingsForUser(userId)
@@ -67,6 +69,7 @@ public class BookingService {
 
         event.setAvailableSeats(event.getAvailableSeats() - 1);
         eventRepository.save(event);
+        eventRagService.updateEvent(event);
 
         log.info("Created booking {} for user {}", booking.getId(), userId);
         return bookingMapper.toDto(booking);
@@ -85,6 +88,7 @@ public class BookingService {
         Event event = booking.getEvent();
         event.setAvailableSeats(event.getAvailableSeats() + 1);
         eventRepository.save(event);
+        eventRagService.updateEvent(event);
 
         log.info("Cancelled booking {} for user {}", id, userId);
     }
