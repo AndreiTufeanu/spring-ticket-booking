@@ -1,9 +1,17 @@
 spring:
   ai:
+    model:
+      embedding: none
     ollama:
       base-url: ${OLLAMA_BASE_URL}
       init:
         pull-model-strategy: never
+    vectorstore:
+      qdrant:
+        host: ${QDRANT_HOST}
+        port: ${QDRANT_PORT}
+        collection-name: ticket-booking
+        initialize-schema: true
   application:
     name: backend
   config:
