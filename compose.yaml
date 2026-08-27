@@ -24,6 +24,23 @@ services:
     networks:
       - app-network
 
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant-data:/qdrant/storage
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'cat < /dev/null > /dev/tcp/localhost/6333'"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - app-network
+
   ticket-booking:
     build:
       context: ./backend
@@ -37,6 +54,9 @@ services:
       - MYSQL_USERNAME=root
       - MYSQL_PORT=3306
       - MYSQL_DB=ticketdb
+      - OLLAMA_BASE_URL=http://localhost:11434
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6334
     secrets:
       - mysql_root_password
       - jwt_secret_key
@@ -44,6 +64,8 @@ services:
       - app-network
     depends_on:
       mysql-db:
+        condition: service_healthy
+      qdrant:
         condition: service_healthy
 
   frontend:
@@ -60,6 +82,7 @@ services:
 
 volumes:
   mysql-data:
+  qdrant-data:
 
 networks:
   app-network:
