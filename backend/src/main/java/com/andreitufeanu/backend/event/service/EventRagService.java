@@ -1,6 +1,8 @@
-package com.andreitufeanu.backend.ai.rag;
+package com.andreitufeanu.backend.event.service;
 
+import com.andreitufeanu.backend.ai.rag.RagDocumentType;
 import com.andreitufeanu.backend.event.entity.Event;
+import com.andreitufeanu.backend.event.mapper.EventDocumentMapper;
 import com.andreitufeanu.backend.event.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.ai.document.Document;

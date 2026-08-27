@@ -1,5 +1,6 @@
 package com.andreitufeanu.backend.ai.rag;
 
+import com.andreitufeanu.backend.event.service.EventRagService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;

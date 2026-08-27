@@ -1,5 +1,6 @@
-package com.andreitufeanu.backend.ai.rag;
+package com.andreitufeanu.backend.event.mapper;
 
+import com.andreitufeanu.backend.ai.rag.RagDocumentType;
 import com.andreitufeanu.backend.event.entity.Category;
 import com.andreitufeanu.backend.event.entity.Event;
 import org.springframework.ai.document.Document;

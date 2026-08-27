@@ -1,6 +1,6 @@
 package com.andreitufeanu.backend.booking.service;
 
-import com.andreitufeanu.backend.ai.rag.EventRagService;
+import com.andreitufeanu.backend.event.service.EventRagService;
 import com.andreitufeanu.backend.booking.dto.BookingDto;
 import com.andreitufeanu.backend.booking.dto.CreateBookingDto;
 import com.andreitufeanu.backend.booking.entity.Booking;

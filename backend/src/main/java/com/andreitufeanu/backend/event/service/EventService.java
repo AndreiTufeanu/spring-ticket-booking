@@ -1,6 +1,5 @@
 package com.andreitufeanu.backend.event.service;
 
-import com.andreitufeanu.backend.ai.rag.EventRagService;
 import com.andreitufeanu.backend.event.dto.CreateEventDto;
 import com.andreitufeanu.backend.event.dto.EventResponseDto;
 import com.andreitufeanu.backend.event.dto.UpdateEventDto;
