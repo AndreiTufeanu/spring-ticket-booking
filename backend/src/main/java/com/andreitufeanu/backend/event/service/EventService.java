@@ -1,5 +1,6 @@
 package com.andreitufeanu.backend.event.service;
 
+import com.andreitufeanu.backend.ai.rag.EventRagService;
 import com.andreitufeanu.backend.event.dto.CreateEventDto;
 import com.andreitufeanu.backend.event.dto.EventResponseDto;
 import com.andreitufeanu.backend.event.dto.UpdateEventDto;
@@ -31,6 +32,7 @@ public class EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final EventMapper eventMapper;
+    private final EventRagService eventRagService;
 
     public List<EventResponseDto> getUpcomingEvents(List<UUID> categoryIds) {
         Specification<Event> spec = Specification
@@ -57,10 +59,11 @@ public class EventService {
         Event event = eventMapper.toEntityWithAvailableSeats(dto);
 
         List<Category> categories = categoryRepository.findAllById(dto.categoryIds());
+        event.setCategories(new ArrayList<>(categories));
 
         Event created = eventRepository.save(event);
 
-        event.setCategories(new ArrayList<>(categories));
+        eventRagService.indexEvent(created);
 
         log.info("Event {} created successfully", created.getId());
 
@@ -74,7 +77,11 @@ public class EventService {
                 .orElseThrow(() -> new NotFoundException("Event not found: " + id));
 
         eventMapper.updateEntity(dto, event);
+
         Event updated = eventRepository.save(event);
+
+        eventRagService.updateEvent(updated);
+
         log.info("Event {} updated successfully", updated.getId());
 
         return eventMapper.toResponse(updated);
@@ -82,7 +89,13 @@ public class EventService {
 
     @Transactional
     public void deleteEventById(UUID id) {
+        if (!eventRepository.existsById(id)) {
+            throw new NotFoundException("Event not found: " + id);
+        }
+
         eventRepository.deleteById(id);
+        eventRagService.deleteEvent(id);
+
         log.info("Event {} deleted successfully", id);
     }
 }
