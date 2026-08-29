@@ -1,5 +1,6 @@
 package com.andreitufeanu.backend.chat.service;
 
+import com.andreitufeanu.backend.ai.factcheck.FactCheckService;
 import com.andreitufeanu.backend.chat.dto.ChatMessageDto;
 import com.andreitufeanu.backend.chat.entity.ChatMessage;
 import com.andreitufeanu.backend.chat.enums.ChatMessageRole;
@@ -10,14 +11,11 @@ import com.andreitufeanu.backend.user.entity.User;
 import com.andreitufeanu.backend.user.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -25,7 +23,7 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ChatService {
 
-    private final ChatClient chatClient;
+    private final AnswerGenerationService answerGenerationService;
     private final ChatMessageRepository chatMessageRepository;
     private final UserRepository userRepository;
     private final ChatMessageMapper chatMessageMapper;
@@ -38,12 +36,7 @@ public class ChatService {
         Instant sentAt = Instant.now();
         String response;
         try {
-            response = chatClient.prompt()
-                    .user(message)
-                    .advisors(a -> a.param(ChatMemory.CONVERSATION_ID, userId.toString()))
-                    .toolContext(Map.of("userId", userId.toString()))
-                    .call()
-                    .content();
+            response = answerGenerationService.generateAnswer(userId, message);
         } finally {
             chatMessageRepository.save(new ChatMessage(user, ChatMessageRole.USER, message, sentAt));
         }
