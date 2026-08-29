@@ -40,6 +40,9 @@ class EventServiceTest {
     @Mock
     private EventMapper eventMapper;
 
+    @Mock
+    private EventRagService eventRagService;
+
     @InjectMocks
     private EventService eventService;
 
@@ -182,8 +185,12 @@ class EventServiceTest {
 
     @Test
     void deleteEventById_ShouldDelete() {
+        when(eventRepository.existsById(eventId)).thenReturn(true);
         doNothing().when(eventRepository).deleteById(eventId);
+
         eventService.deleteEventById(eventId);
+
         verify(eventRepository).deleteById(eventId);
+        verify(eventRagService).deleteEvent(eventId);
     }
 }

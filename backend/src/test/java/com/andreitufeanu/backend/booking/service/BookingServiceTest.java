@@ -7,6 +7,7 @@ import com.andreitufeanu.backend.booking.mapper.BookingMapper;
 import com.andreitufeanu.backend.booking.repository.BookingRepository;
 import com.andreitufeanu.backend.event.entity.Event;
 import com.andreitufeanu.backend.event.repository.EventRepository;
+import com.andreitufeanu.backend.event.service.EventRagService;
 import com.andreitufeanu.backend.exceptions.BadRequestException;
 import com.andreitufeanu.backend.exceptions.ConflictException;
 import com.andreitufeanu.backend.exceptions.ForbiddenException;
@@ -46,6 +47,9 @@ class BookingServiceTest {
 
     @Mock
     private BookingMapper bookingMapper;
+
+    @Mock
+    private EventRagService eventRagService;
 
     @InjectMocks
     private BookingService bookingService;
