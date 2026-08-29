@@ -36,7 +36,7 @@ public class EventRagService {
     public void reindexAllEvents() {
         vectorStore.delete("type == '" + RagDocumentType.EVENT.name() + "'");
 
-        List<Document> documents = eventRepository.findAll()
+        List<Document> documents = eventRepository.findAllForReindexing()
                 .stream()
                 .map(eventDocumentMapper::toDocument)
                 .toList();
