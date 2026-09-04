@@ -85,4 +85,46 @@ class BookingRepositoryTest {
         List<Booking> bookings = bookingRepository.findBookingsForUser(newUserId);
         assertThat(bookings).isEmpty();
     }
+
+    @Test
+    void findFirstAvailableSeat_ShouldReturnSmallestFreeSeat_WhenSeatsAvailable() {
+        Integer firstFree = bookingRepository.findFirstAvailableSeat(event1.getId(), event1.getTotalSeats());
+        assertThat(firstFree).isEqualTo(2);
+
+        Integer firstFreeEvent2 = bookingRepository.findFirstAvailableSeat(event2.getId(), event2.getTotalSeats());
+        assertThat(firstFreeEvent2).isEqualTo(1);
+    }
+
+    @Test
+    void findFirstAvailableSeat_ShouldReturnNull_WhenFullyBooked() {
+        Booking seat1 = new Booking();
+        seat1.setUser(user);
+        seat1.setEvent(event2);
+        seat1.setSeatNumber(1);
+        entityManager.persist(seat1);
+
+        Booking seat3 = new Booking();
+        seat3.setUser(user);
+        seat3.setEvent(event2);
+        seat3.setSeatNumber(3);
+        entityManager.persist(seat3);
+
+        Booking seat4 = new Booking();
+        seat4.setUser(user);
+        seat4.setEvent(event2);
+        seat4.setSeatNumber(4);
+        entityManager.persist(seat4);
+
+        Booking seat5 = new Booking();
+        seat5.setUser(user);
+        seat5.setEvent(event2);
+        seat5.setSeatNumber(5);
+        entityManager.persist(seat5);
+
+        entityManager.flush();
+
+        Integer firstFree = bookingRepository.findFirstAvailableSeat(event2.getId(), event2.getTotalSeats());
+
+        assertThat(firstFree).isNull();
+    }
 }

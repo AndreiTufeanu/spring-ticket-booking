@@ -89,7 +89,7 @@ class BookingControllerTest {
 
     @Test
     void createBooking_ShouldReturnCreated() throws Exception {
-        CreateBookingDto dto = new CreateBookingDto(eventId, 3);
+        CreateBookingDto dto = new CreateBookingDto(eventId);
         BookingDto response = new BookingDto(bookingId, eventId, 3, "Concert", now, LOCATION, DESCRIPTION);
         when(bookingService.createBooking(eq(userId), any(CreateBookingDto.class))).thenReturn(response);
 
@@ -105,7 +105,7 @@ class BookingControllerTest {
 
     @Test
     void createBooking_ShouldReturnBadRequest_WhenInvalidData() throws Exception {
-        CreateBookingDto invalid = new CreateBookingDto(null, 0);
+        CreateBookingDto invalid = new CreateBookingDto(null);
 
         mockMvc.perform(post("/bookings")
                         .contentType(MediaType.APPLICATION_JSON)

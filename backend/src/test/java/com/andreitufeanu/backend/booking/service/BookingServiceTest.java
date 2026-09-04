@@ -21,7 +21,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import java.time.Instant;
 import java.util.List;
@@ -128,13 +127,15 @@ class BookingServiceTest {
 
     @Test
     void createBooking_Success() {
-        CreateBookingDto dto = new CreateBookingDto(eventId, 3);
+        CreateBookingDto dto = new CreateBookingDto(eventId);
+        int expectedSeat = 5;
 
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+        when(eventRepository.findByIdForUpdate(eventId)).thenReturn(Optional.of(event));
+        when(bookingRepository.findFirstAvailableSeat(eventId, event.getTotalSeats())).thenReturn(expectedSeat);
         when(userRepository.getReferenceById(userId)).thenReturn(user);
         when(bookingRepository.saveAndFlush(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(any(Booking.class))).thenReturn(
-                new BookingDto(bookingId, eventId, 3, "Concert", now,
+                new BookingDto(bookingId, eventId, expectedSeat, "Concert", now,
                         "Madison Square Garden", "An amazing concert")
         );
 
@@ -144,22 +145,25 @@ class BookingServiceTest {
         BookingDto result = bookingService.createBooking(userId, dto);
 
         assertThat(result.id()).isEqualTo(bookingId);
+        assertThat(result.seatNumber()).isEqualTo(expectedSeat);
 
         verify(bookingRepository).saveAndFlush(bookingCaptor.capture());
         Booking savedBooking = bookingCaptor.getValue();
-        assertThat(savedBooking.getSeatNumber()).isEqualTo(3);
+        assertThat(savedBooking.getSeatNumber()).isEqualTo(expectedSeat);
         assertThat(savedBooking.getUser()).isEqualTo(user);
         assertThat(savedBooking.getEvent()).isEqualTo(event);
 
         verify(eventRepository).save(eventCaptor.capture());
         Event savedEvent = eventCaptor.getValue();
         assertThat(savedEvent.getAvailableSeats()).isEqualTo(7);
+
+        verify(eventRagService).updateEvent(event);
     }
 
     @Test
     void createBooking_ThrowsNotFoundException_WhenEventNotFound() {
-        CreateBookingDto dto = new CreateBookingDto(eventId, 1);
-        when(eventRepository.findById(eventId)).thenReturn(Optional.empty());
+        CreateBookingDto dto = new CreateBookingDto(eventId);
+        when(eventRepository.findByIdForUpdate(eventId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.createBooking(userId, dto))
                 .isInstanceOf(NotFoundException.class)
@@ -168,32 +172,33 @@ class BookingServiceTest {
     }
 
     @Test
-    void createBooking_ThrowsBadRequestException_WhenSeatNumberExceedsTotalSeats() {
-        CreateBookingDto dto = new CreateBookingDto(eventId, 20);
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
+    void createBooking_ThrowsConflictException_WhenEventFullyBooked() {
+        event.setAvailableSeats(0);
+        CreateBookingDto dto = new CreateBookingDto(eventId);
+        when(eventRepository.findByIdForUpdate(eventId)).thenReturn(Optional.of(event));
 
         assertThatThrownBy(() -> bookingService.createBooking(userId, dto))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessageContaining("Seat number must be between 1 and 10");
+                .isInstanceOf(ConflictException.class)
+                .hasMessage("This event is fully booked.");
         verify(bookingRepository, never()).save(any());
     }
 
     @Test
-    void createBooking_ThrowsConflictException_WhenSeatAlreadyTaken() {
-        CreateBookingDto dto = new CreateBookingDto(eventId, 3);
-        when(eventRepository.findById(eventId)).thenReturn(Optional.of(event));
-        when(userRepository.getReferenceById(userId)).thenReturn(user);
-        when(bookingRepository.saveAndFlush(any(Booking.class))).thenThrow(DataIntegrityViolationException.class);
+    void createBooking_ThrowsConflictException_WhenNoAvailableSeatFound() {
+        CreateBookingDto dto = new CreateBookingDto(eventId);
+        when(eventRepository.findByIdForUpdate(eventId)).thenReturn(Optional.of(event));
+        when(bookingRepository.findFirstAvailableSeat(eventId, event.getTotalSeats())).thenReturn(null);
 
         assertThatThrownBy(() -> bookingService.createBooking(userId, dto))
                 .isInstanceOf(ConflictException.class)
-                .hasMessageContaining("Seat 3 is already taken for this event.");
-        verify(eventRepository, never()).save(any());
+                .hasMessage("This event is fully booked.");
+        verify(bookingRepository, never()).save(any());
     }
 
     @Test
     void cancelBooking_Success_WhenUserOwnsBooking() {
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+        when(eventRepository.findByIdForUpdate(event.getId())).thenReturn(Optional.of(event));
 
         bookingService.cancelBooking(bookingId, userId);
 
@@ -203,6 +208,8 @@ class BookingServiceTest {
         verify(eventRepository).save(eventCaptor.capture());
         Event updatedEvent = eventCaptor.getValue();
         assertThat(updatedEvent.getAvailableSeats()).isEqualTo(9);
+
+        verify(eventRagService).updateEvent(event);
     }
 
     @Test
