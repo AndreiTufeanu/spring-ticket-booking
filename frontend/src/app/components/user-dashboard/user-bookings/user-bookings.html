@@ -46,17 +46,13 @@
                     </div>
 
                     <div class="book-form">
-                        <label>Seat Number:</label>
-                        <div class="book-form-row">
-                            <input
-                                class="seat-input"
-                                [ngModel]="getSelectedSeat(event.id)"
-                                (ngModelChange)="setSelectedSeat(event.id, $event)"
-                                type="number" min="1" placeholder="Seat #">
-                            <button (click)="bookSeat(event.id)" [disabled]="getSelectedSeat(event.id) < 1" class="btn-book">
-                                Book Seat #{{ getSelectedSeat(event.id) }}
-                            </button>
-                        </div>
+                        <button (click)="bookSeat(event.id)" [disabled]="event.availableSeats === 0" class="btn-book">
+                            @if (event.availableSeats === 0) {
+                            Sold Out
+                            } @else {
+                            Book a Seat
+                            }
+                        </button>
                     </div>
 
                     <div class="description-toggle">

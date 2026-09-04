@@ -10,5 +10,4 @@ export interface BookingDto {
 
 export interface CreateBookingDto {
   eventId: string;
-  seatNumber: number;
 }

@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../../services/api.service';
 import { EventDto } from '../../../models/event.model';
-import { CreateBookingDto, BookingDto } from '../../../models/booking.model';
+import { BookingDto } from '../../../models/booking.model';
 import { CategoryDto } from '../../../models/category.model';
 import { NotificationService } from '../../../services/notification.service';
 import { DescriptionModal } from '../../description-modal/description-modal';
@@ -23,8 +23,6 @@ export class UserBookings implements OnInit {
   events = signal<EventDto[]>([]);
   bookings = signal<BookingDto[]>([]);
   loading = signal<boolean>(true);
-
-  selectedSeats: Record<string, number> = {};
 
   // Description modal
   activeDescription = signal<{ title: string; description: string } | null>(null);
@@ -86,24 +84,14 @@ export class UserBookings implements OnInit {
     });
   }
 
-  getSelectedSeat(eventId: string): number {
-    return this.selectedSeats[eventId] || 1;
-  }
-
-  setSelectedSeat(eventId: string, seatNumber: number) {
-    this.selectedSeats[eventId] = seatNumber;
-  }
-
   bookSeat(eventId: string) {
-    const seatNumber = this.getSelectedSeat(eventId);
-    if (seatNumber < 1) {
-      return;
-    }
-
-    this.apiService.createBooking({ eventId, seatNumber }).subscribe({
+    this.apiService.createBooking({ eventId }).subscribe({
       next: (booking) => {
         this.bookings.update(b => [...b, booking]);
-        this.selectedSeats[eventId] = 1;
+        this.events.update(events =>
+          events.map(e => e.id === eventId ? { ...e, availableSeats: e.availableSeats - 1 } : e)
+        );
+        this.notificationService.showSuccess(`Booked seat #${booking.seatNumber}!`);
       }
     });
   }
@@ -111,8 +99,17 @@ export class UserBookings implements OnInit {
   cancelBooking(bookingId: string) {
     if (!confirm('Cancel this booking?')) return;
 
+    const booking = this.bookings().find(b => b.id === bookingId);
+
     this.apiService.cancelBooking(bookingId).subscribe({
-      next: () => this.bookings.update(b => b.filter(booking => booking.id !== bookingId))
+      next: () => {
+        this.bookings.update(b => b.filter(booking => booking.id !== bookingId));
+        if (booking) {
+          this.events.update(events =>
+            events.map(e => e.id === booking.eventId ? { ...e, availableSeats: e.availableSeats + 1 } : e)
+          );
+        }
+      }
     });
   }
 
