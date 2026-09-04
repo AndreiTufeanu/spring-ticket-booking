@@ -49,29 +49,25 @@ public class BookingService {
 
     @Transactional
     public BookingDto createBooking(UUID userId, CreateBookingDto dto) {
-        Event event = eventRepository.findById(dto.eventId())
+        Event event = eventRepository.findByIdForUpdate(dto.eventId())
                 .orElseThrow(() -> new NotFoundException("Event " + dto.eventId()));
 
-        if (dto.seatNumber() > event.getTotalSeats())
-            throw new BadRequestException(
-                    "Seat number must be between 1 and " + event.getTotalSeats() + ".");
+        if (event.getAvailableSeats() <= 0)
+            throw new ConflictException("This event is fully booked.");
+
+        int seatNumber = firstAvailableSeat(event.getId(), event.getTotalSeats());
 
         Booking booking = new Booking();
         booking.setUser(userRepository.getReferenceById(userId));
         booking.setEvent(event);
-        booking.setSeatNumber(dto.seatNumber());
-
-        try {
-            bookingRepository.saveAndFlush(booking);
-        } catch (DataIntegrityViolationException ex) {
-            throw new ConflictException("Seat " + dto.seatNumber() + " is already taken for this event.");
-        }
+        booking.setSeatNumber(seatNumber);
+        bookingRepository.saveAndFlush(booking);
 
         event.setAvailableSeats(event.getAvailableSeats() - 1);
         eventRepository.save(event);
         eventRagService.updateEvent(event);
 
-        log.info("Created booking {} for user {}", booking.getId(), userId);
+        log.info("Created booking {} (seat {}) for user {}", booking.getId(), seatNumber, userId);
         return bookingMapper.toDto(booking);
     }
 
@@ -83,9 +79,10 @@ public class BookingService {
         if (!booking.getUser().getId().equals(userId))
             throw new ForbiddenException("You do not have permission to cancel this booking.");
 
-        bookingRepository.delete(booking);
+        Event event = eventRepository.findByIdForUpdate(booking.getEvent().getId())
+                .orElseThrow(() -> new NotFoundException("Event " + booking.getEvent().getId()));
 
-        Event event = booking.getEvent();
+        bookingRepository.delete(booking);
         event.setAvailableSeats(event.getAvailableSeats() + 1);
         eventRepository.save(event);
         eventRagService.updateEvent(event);
@@ -93,4 +90,13 @@ public class BookingService {
         log.info("Cancelled booking {} for user {}", id, userId);
     }
 
+    private int firstAvailableSeat(UUID eventId, int totalSeats) {
+        Integer seat = bookingRepository.findFirstAvailableSeat(eventId, totalSeats);
+
+        if (seat == null) {
+            throw new ConflictException("This event is fully booked.");
+        }
+
+        return seat;
+    }
 }
