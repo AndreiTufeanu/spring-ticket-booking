@@ -6,6 +6,12 @@ A full-stack ticket booking platform built with **Spring Boot** and **Angular**,
 
 The application runs locally using **Docker Compose**, with Ollama providing the AI models and Qdrant handling vector search. Spring AI supports these AI application patterns, including RAG, chat memory, tool calling, and model evaluation.
 
+## Project Context
+
+This project is a Java/Spring Boot reimplementation of my [TicketFlow Microservices](https://github.com/AndreiTufeanu/ticketflow-microservices) project. It retains the original application's core functionality and largely reuses its Angular frontend, while replacing the ASP.NET Core microservices backend with a monolithic Spring Boot application.
+
+The reimplementation also introduces an AI-powered assistant built with Spring AI.
+
 ## Table of Contents
 
 * [Description](#description)
