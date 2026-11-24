@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class BookingTools {
 
+    public static final String TOOL_OUTPUTS_KEY = "toolOutputs";
     private final BookingRepository bookingRepository;
     private final EventRepository eventRepository;
 
@@ -42,9 +43,11 @@ public class BookingTools {
         """)
     public List<BookingSummary> getMyBookings(ToolContext toolContext) {
         UUID userId = currentUserId(toolContext);
-        return bookingRepository.findBookingsForUser(userId).stream()
-                .map(BookingTools::toSummary)
-                .toList();
+        return recordToolOutput("getMyBookings",
+                bookingRepository.findBookingsForUser(userId).stream()
+                        .map(BookingTools::toSummary)
+                        .toList(),
+                toolContext);
     }
 
     @Tool(description = """
@@ -62,8 +65,9 @@ public class BookingTools {
             ToolContext toolContext) {
         UUID userId = currentUserId(toolContext);
         UUID eventUuid = UUID.fromString(eventId);
-        return bookingRepository.findBookingsForUser(userId).stream()
+        boolean booked = bookingRepository.findBookingsForUser(userId).stream()
                 .anyMatch(b -> b.getEvent().getId().equals(eventUuid));
+        return recordToolOutput("isEventBooked(" + eventId + ")", booked, toolContext);
     }
 
     @Tool(description = """
@@ -85,13 +89,14 @@ public class BookingTools {
                 .map(b -> b.getEvent().getId())
                 .collect(Collectors.toSet());
 
-        return eventRepository
+        List<EventSummary> result = eventRepository
                 .findAll(EventSpecifications.isUpcoming(now), Sort.by(Sort.Direction.ASC, "eventDate"))
                 .stream()
                 .filter(e -> !e.getEventDate().isAfter(until))
                 .filter(e -> !bookedEventIds.contains(e.getId()))
                 .map(BookingTools::toEventSummary)
                 .toList();
+        return recordToolOutput("getUpcomingEventsWithoutBooking(withinDays=" + withinDays + ")", result, toolContext);
     }
 
     private UUID currentUserId(ToolContext toolContext) {
@@ -121,6 +126,14 @@ public class BookingTools {
                 String.valueOf(event.getEventDate()),
                 event.getLocation()
         );
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T recordToolOutput(String toolName, T result, ToolContext toolContext) {
+        if (toolContext.getContext().get(TOOL_OUTPUTS_KEY) instanceof List<?> sink) {
+            ((List<String>) sink).add(toolName + " returned: " + result);
+        }
+        return result;
     }
 
     public record BookingSummary(
