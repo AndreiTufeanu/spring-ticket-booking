@@ -63,7 +63,8 @@ public class AnswerGenerationService {
         List<Document> retrievedDocuments =
                 chatResponse.getMetadata().get(QuestionAnswerAdvisor.RETRIEVED_DOCUMENTS);
 
-        log.info("Tool outputs recorded: {}", toolOutputs);
+        log.info("answer={} | retrieved={} | toolOutputs={}", answer,
+                retrievedDocuments == null ? "null" : retrievedDocuments.size(), toolOutputs.size());
 
         if (!factCheckService.isGrounded(answer, retrievedDocuments, toolOutputs)) {
             throw new InvalidAnswerException("bespoke-minicheck rejected the generated answer as ungrounded");
