@@ -9,7 +9,9 @@ import org.springframework.ai.evaluation.EvaluationResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Verifies that a generated answer is actually supported by the context it was
@@ -32,15 +34,16 @@ public class FactCheckService {
      * produced during the same turn.
      *
      * <p>Each tool output is wrapped in its own {@link Document} and appended to the
-     * retrieved documents, so the checker sees everything the main model saw.
+     * retrieved documents, so the checker sees everything the main model saw. The answer
+     * is reduced to its factual lines first (markdown, questions and sign-offs removed),
+     * since those are not claims the checker can verify.
      *
      * @param answer             the assistant's generated answer (the "claim")
      * @param retrievedDocuments the RAG documents retrieved for that turn; may be {@code null}
-     * @param toolOutputs        the recorded results of tool calls made during that turn;
+     * @param toolOutputs        the recorded evidence from tool calls made during that turn;
      *                           may be {@code null} or empty
      * @return {@code true} if bespoke-minicheck considers the answer grounded, or if
-     *         there is no context at all to check it against (no retrieved documents
-     *         and no tool calls)
+     *         there is nothing to check (no context, or no factual claims in the answer)
      */
     public boolean isGrounded(String answer, List<Document> retrievedDocuments, List<String> toolOutputs) {
         List<Document> context = new ArrayList<>();
@@ -55,11 +58,25 @@ public class FactCheckService {
             return true;
         }
 
-        EvaluationResponse evaluation = factCheckingEvaluator.evaluate(new EvaluationRequest(context, answer));
+        String claims = toClaimText(answer);
+        if (claims.isBlank()) {
+            return true;
+        }
+
+        EvaluationResponse evaluation = factCheckingEvaluator.evaluate(new EvaluationRequest(context, claims));
 
         if (!evaluation.isPass()) {
             log.warn("bespoke-minicheck flagged a possibly ungrounded answer: \"{}\"", answer);
         }
         return evaluation.isPass();
+    }
+
+    private static String toClaimText(String answer) {
+        return Arrays.stream(answer.replaceAll("[*_`#]", "").split("\\R"))
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .filter(line -> !line.endsWith("?"))
+                .filter(line -> !line.toLowerCase().startsWith("let me know"))
+                .collect(Collectors.joining("\n"));
     }
 }

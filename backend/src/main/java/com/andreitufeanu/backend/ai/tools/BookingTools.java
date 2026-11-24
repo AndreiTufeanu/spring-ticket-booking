@@ -43,11 +43,19 @@ public class BookingTools {
         """)
     public List<BookingSummary> getMyBookings(ToolContext toolContext) {
         UUID userId = currentUserId(toolContext);
-        return recordToolOutput("getMyBookings",
-                bookingRepository.findBookingsForUser(userId).stream()
-                        .map(BookingTools::toSummary)
-                        .toList(),
-                toolContext);
+
+        List<BookingSummary> result = bookingRepository.findBookingsForUser(userId).stream()
+                .map(BookingTools::toSummary)
+                .toList();
+
+        String evidence = result.isEmpty()
+                ? "The user has no bookings."
+                : result.stream()
+                .map(b -> "The user has booked \"%s\" on %s at %s, seat %d."
+                        .formatted(b.eventTitle(), b.eventDate(), b.eventLocation(), b.seatNumber()))
+                .collect(Collectors.joining("\n"));
+
+        return recordToolOutput(evidence, result, toolContext);
     }
 
     @Tool(description = """
@@ -65,9 +73,19 @@ public class BookingTools {
             ToolContext toolContext) {
         UUID userId = currentUserId(toolContext);
         UUID eventUuid = UUID.fromString(eventId);
+
         boolean booked = bookingRepository.findBookingsForUser(userId).stream()
                 .anyMatch(b -> b.getEvent().getId().equals(eventUuid));
-        return recordToolOutput("isEventBooked(" + eventId + ")", booked, toolContext);
+
+        String title = eventRepository.findById(eventUuid)
+                .map(Event::getTitle)
+                .orElse("an unknown event");
+
+        String evidence = booked
+                ? "The user has already booked the event \"%s\".".formatted(title)
+                : "The user has NOT booked the event \"%s\".".formatted(title);
+
+        return recordToolOutput(evidence, booked, toolContext);
     }
 
     @Tool(description = """
@@ -96,7 +114,17 @@ public class BookingTools {
                 .filter(e -> !bookedEventIds.contains(e.getId()))
                 .map(BookingTools::toEventSummary)
                 .toList();
-        return recordToolOutput("getUpcomingEventsWithoutBooking(withinDays=" + withinDays + ")", result, toolContext);
+
+        String evidence = result.isEmpty()
+                ? "There are no upcoming events in the next %d days that the user has not booked."
+                .formatted(withinDays)
+                : "Upcoming events in the next %d days that the user has not booked:\n"
+                .formatted(withinDays)
+                + result.stream()
+                .map(e -> "\"%s\" on %s at %s".formatted(e.eventTitle(), e.eventDate(), e.eventLocation()))
+                .collect(Collectors.joining("\n"));
+
+        return recordToolOutput(evidence, result, toolContext);
     }
 
     private UUID currentUserId(ToolContext toolContext) {
@@ -129,9 +157,9 @@ public class BookingTools {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T recordToolOutput(String toolName, T result, ToolContext toolContext) {
+    private <T> T recordToolOutput(String evidence, T result, ToolContext toolContext) {
         if (toolContext.getContext().get(TOOL_OUTPUTS_KEY) instanceof List<?> sink) {
-            ((List<String>) sink).add(toolName + " returned: " + result);
+            ((List<String>) sink).add(evidence);
         }
         return result;
     }
